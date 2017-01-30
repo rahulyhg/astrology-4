@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="HandheldFriendly" content="true">
-  <script type='text/javascript' src='js/svg.min.js' charset='utf-8'></script>
+  <script type="text/javascript" src="js/svg.min.js" charset="utf-8"></script>
   <script src="js/svg.connectable.js"></script>
   <style type="text/css">
   .main {
@@ -18,13 +18,57 @@
 
 <body>
   <div id="testEl">asdfasdf</div>
+  <div id="testSVG"></div>
   <div id="main" class="main">
     <div id="astro"></div>
   </div>
   <script>
+  var planets = [
+    'sun',
+    'moon',
+    'mercury',
+    'venus',
+    'mars',
+    'jupiter',
+    'saturn',
+    'uranus',
+    'neptune',
+    'pluto',
+    'mean_node'
+    // 'chiron',
+    // 'pholus',
+    // 'ceres',
+    // 'pallas',
+    // 'juno',
+    // 'vesta',
+    // 'cupido',
+    // 'chariklo',
+    // 'chaos',
+    // 'eris',
+    // 'nessus'
+  ];
 
+  function test() {
+    var draw1 = SVG('testSVG').size('100%', '100%').viewbox(0, 0, 500, 200);
+    var line = draw1.line(100, 100, 200, 100).stroke({
+      color: '#000',
+      width: 0.5
+    });
+    var text1 = draw1.text('Drsdfadf').font({
+      size: 20
+    }).center(50, 50);
+    line.marker('start', 100, 100, function(add) {
+      // add.circle(6).center(4, 5)
+      // var text = draw1.text("La.");
+      add.add(text1);
+      this.fill('#000');
+    });
+    line.dmove(15, 20).rotate(-10);
+    text1.rotate(10+90);
+  }
+  test();
 
-  function astroShow(draw, houseArr, asc, mc) {
+  function astroShow(draw, planetsData, houseArr, asc, mc) {
     draw.clear();
     var maxSize = 500;
     var circleDiameter = 480;
@@ -86,61 +130,252 @@
       // var lineHouseOne = draw.use(lineHouse).y(circleDiameter / 2).rotate(20);
       lineHouseGroup.add(lineHouseOne);
     }
-    var circleCenter = lineHouseGroup.clone().maskWith(circle3.clone().fill('#333').attr({
+    var circleCenter = lineHouseGroup.clone().maskWith(circle3.clone().fill('#222').attr({
       stroke: null
     }));
-    groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circleCenter);
+
+    // planets star position
+    var lineStar = draw.defs().line(0, 0, circleDiameter - 200, 0).stroke({
+      color: '#ccc',
+      opacity:0
+    });
+    var lineStarGroup = draw.group();
+    for (var k = 0; k < planets.length; k++) {
+      var starLine = lineStar.clone();
+      var starObj = planetsData[planets[k]];
+      var rotateAngle = starObj.lon;
+      var textStar = draw.text(starObj.name).font({
+        size: 10
+      }).center(50, 50);
+      var starMarker = draw.marker(100, 100, function(add) {
+        add.add(textStar);
+      });
+      starLine.marker('start', starMarker);
+      starLine.move(100, circleDiameter / 2).rotate(0 - rotateAngle);
+
+      lineStarGroup.add(starLine);
+      textStar.rotate(rotateAngle-asc);
+    }
+    groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circleCenter).add(lineStarGroup);
     // groupHouse.rotate(-asc);
     //
     var lineAsc = draw.line(0 - padding * 2, 0, maxSize, 0).stroke(strokeStyleInner).y(circleDiameter / 2);
     var lineMc = draw.line(0 - padding * 2, 0, maxSize, 0).stroke(strokeStyleInner2).y(circleDiameter / 2);
     lineAsc.rotate(0 - asc);
     lineMc.rotate(0 - mc);
+    lineMc.marker('mid', 0, 0, function(add) {
+      add.circle(100).fill('#000');
+    });
     groupHouse.add(lineAsc).add(lineMc);
     groupHouse.rotate(asc);
     groupEcliptic.rotate(asc);
+
+    // stars
+    var starDef = draw.defs().circle(10).fill('#000');
+    var starOne = starDef.clone().dmove(0, 0);
+
+
     groupAll.add(groupEcliptic).add(groupHouse);
     groupAll.move(padding, padding);
 
   }
+
   function startAstro(target) {
-      if (!SVG.supported) {
-        alert('SVG not supported');
-        return false;
+    if (!SVG.supported) {
+      alert('SVG not supported');
+      return false;
+    }
+    var draw = SVG(target);
+
+    var planetsData = {
+      'sun': {
+        'name': 'sun',
+        'lon': 316.81797600093626,
+        'lat': 0.0004108106661321218,
+        'spd': 1.0098260642621426,
+        'r': 0
+      },
+      'moon': {
+        'name': 'moon',
+        'lon': 326.0242175662381,
+        'lat': -1.2666176621572691,
+        'spd': 11.784215357124594,
+        'r': 0
+      },
+      'mercury': {
+        'name': 'mercury',
+        'lon': 334.2201905101414,
+        'lat': 1.3454868374151474,
+        'spd': 0.48104779438062906,
+        'r': 0
+      },
+      'venus': {
+        'name': 'venus',
+        'lon': 301.8172830238122,
+        'lat': -0.633749811484642,
+        'spd': 1.2511515060964484,
+        'r': 0
+      },
+      'mars': {
+        'name': 'mars',
+        'lon': 329.01665019172503,
+        'lat': -1.0414450814576528,
+        'spd': 0.7880249228264802,
+        'r': 0
+      },
+      'jupiter': {
+        'name': 'jupiter',
+        'lon': 190.16361397054163,
+        'lat': 1.4654571685733873,
+        'spd': -0.03487566175408574,
+        'r': 0
+      },
+      'saturn': {
+        'name': 'saturn',
+        'lon': 189.4960389523151,
+        'lat': 2.5208657429238936,
+        'spd': -0.029923668733999875,
+        'r': 0
+      },
+      'uranus': {
+        'name': 'uranus',
+        'lon': 239.77387282404084,
+        'lat': 0.22525176978027348,
+        'spd': 0.024867982375553765,
+        'r': 0
+      },
+      'neptune': {
+        'name': 'neptune',
+        'lon': 264.1927105872144,
+        'lat': 1.3089504736466098,
+        'spd': 0.02563382736298081,
+        'r': 0
+      },
+      'pluto': {
+        'name': 'pluto',
+        'lon': 204.31516118590744,
+        'lat': 17.343013961732847,
+        'spd': -0.005452316997889284,
+        'r': 0
+      },
+      'mean_node': {
+        'name': 'mean_node',
+        'lon': 130.62312516773838,
+        'lat': 0,
+        'spd': -0.05296177377545064,
+        'r': 0
+      },
+      'chiron': {
+        'name': 'chiron',
+        'lon': 43.5052345101053,
+        'lat': -2.11740419283264,
+        'spd': 0.013930854869670384,
+        'r': 0
+      },
+      'pholus': {
+        'name': 'pholus',
+        'lon': 359.2381717864676,
+        'lat': -21.31818577049128,
+        'spd': 0.056111419439730525,
+        'r': 0
+      },
+      'ceres': {
+        'name': 'ceres',
+        'lon': 105.24143734697998,
+        'lat': 9.622921376999386,
+        'spd': -0.1523610105635953,
+        'r': 0
+      },
+      'pallas': {
+        'name': 'pallas',
+        'lon': 28.182609745094318,
+        'lat': -30.62175266741695,
+        'spd': 0.37003767719312464,
+        'r': 0
+      },
+      'juno': {
+        'name': 'juno',
+        'lon': 216.89360101511954,
+        'lat': 6.977622611331037,
+        'spd': 0.10345614541051873,
+        'r': 0
+      },
+      'vesta': {
+        'name': 'vesta',
+        'lon': 157.20224800433607,
+        'lat': 8.371002154803717,
+        'spd': -0.20587487782108838,
+        'r': 0
+      },
+      'cupido': {
+        'name': 'cupido',
+        'lon': 218.1866086023104,
+        'lat': 1.077466224606196,
+        'spd': 0.0007074584118527127,
+        'r': 0
+      },
+      'chariklo': {
+        'name': 'chariklo',
+        'lon': 34.98530189104559,
+        'lat': 22.96795814372611,
+        'spd': 0.024017344628646242,
+        'r': 0
+      },
+      'chaos': {
+        'name': 'chaos',
+        'lon': 32.45982525521509,
+        'lat': -3.3494148329201727,
+        'spd': 0.00839405903008128,
+        'r': 0
+      },
+      'eris': {
+        'name': 'eris',
+        'lon': 14.207630934323765,
+        'lat': -18.973085727365532,
+        'spd': 0.005986353714959591,
+        'r': 0
+      },
+      'nessus': {
+        'name': 'nessus',
+        'lon': 110.99714757927057,
+        'lat': 16.279877634271934,
+        'spd': -0.041067750800038993,
+        'r': 0
       }
-      var draw = SVG(target);
-      var houseArr = [352.0564146335398,
-        35.04129140503142,
-        63.44271090260005,
-        85.69597507922174,
-        107.25433306655145,
-        133.180868936381,
-        172.05641463353982,
-        215.04129140503142,
-        243.44271090260006,
-        265.69597507922174,
-        287.25433306655145,
-        313.180868936381
-      ];
-      var asc = houseArr[0];
-      var mc = houseArr[9];
-      astroShow(draw, houseArr, asc, mc);
-      houseArr = [225.38677571201202,
-        254.9245449275749,
-        288.9354258928624,
-        324.74309363455245,
-        357.1118108559691,
-        23.675867760700157,
-        45.386775712012025,
-        74.92454492757491,
-        108.93542589286238,
-        144.74309363455245,
-        177.11181085596914,
-        203.67586776070019
-      ];
-      asc = houseArr[0];
-      mc = houseArr[9];
-      astroShow(draw, houseArr, asc, mc);
+    };
+
+    var houseArr = [352.0564146335398,
+      35.04129140503142,
+      63.44271090260005,
+      85.69597507922174,
+      107.25433306655145,
+      133.180868936381,
+      172.05641463353982,
+      215.04129140503142,
+      243.44271090260006,
+      265.69597507922174,
+      287.25433306655145,
+      313.180868936381
+    ];
+    var asc = houseArr[0];
+    var mc = houseArr[9];
+    // astroShow(draw,planetsData, houseArr, asc, mc);
+    houseArr = [225.38677571201202,
+      254.9245449275749,
+      288.9354258928624,
+      324.74309363455245,
+      357.1118108559691,
+      23.675867760700157,
+      45.386775712012025,
+      74.92454492757491,
+      108.93542589286238,
+      144.74309363455245,
+      177.11181085596914,
+      203.67586776070019
+    ];
+    asc = houseArr[0];
+    mc = houseArr[9];
+    astroShow(draw, planetsData, houseArr, asc, mc);
   }
   startAstro('astro');
   </script>

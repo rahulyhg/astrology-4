@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <style>
+        /*
+        *   Some inline styling.. just to not make one get tired in 2 seconds of watching the page..
+        */
+        body {
+            background:#c8dbfa;
+            text-shadow: 1px 1px 2px #eaf2ff;
+        }
+
+        .centerText {
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+<body>
+<h2 class="centerText">Astrology Test Page</h2>
+<div class="container">
+    <p class="col-sm-offset-2 col-sm-8">Just a small test-page to demonstrate a simple pure vanilla javascript usage of some of the methods. Basically no styling (some minor boostrap just) or other cool stuff applied ;)</p>
+    <form class="col-sm-offset-2 col-sm-8">
+        <input id="dateInput" type="text" placeholder="day">
+        <input id="monthInput" type="text" placeholder="month">
+        <input type="submit" value="Send date and month" class="btn btn-lg btn-info" id="sendDateMonth">
+    </form>
+</div>
+
+<div class="container">
+    <p class="col-sm-offset-2 col-sm-8">Just a small test-page to demonstrate a simple pure vanilla javascript usage of some of the methods. Basically no styling (some minor boostrap just) or other cool stuff applied ;)</p>
+    <form class="col-sm-offset-2 col-sm-8">
+        <input id="dateObjectInput" type="date">
+        <input type="submit" value="Send date input" class="btn btn-lg btn-info" id="dateObjectButton">
+    </form>
+</div>
+
+<div class="container">
+    <h4 class="centerText" id="zodiacName"></h4>
+    <p class="col-sm-offset-2 col-sm-8" id="zodiacDescription"></p>
+</div>
+
+<script src="js/astrology.js"></script>
+<script>
+
+        var testConnectionObject = {
+            /*
+            dateDataUrl:'someUrl',
+            descriptionDataUrl:'anotherUrl'
+            */
+        };
+
+        //Instantiate the class
+        var astrology = new Astrology(testConnectionObject);
+
+
+        var dateButton = document.getElementById('dateObjectButton');
+        var button = document.getElementById('sendDateMonth');
+
+        var zodiacName = document.getElementById('zodiacName');
+        var zodiacDescription = document.getElementById('zodiacDescription');
+
+        var currentZodiacName = '';
+        var currentZodiacDescription = '';
+
+        button.addEventListener('click', function(event){
+            event.preventDefault();
+
+            var date = document.getElementById('dateInput').value;
+            var month = document.getElementById('monthInput').value;
+
+            astrology.addDay(date);
+            astrology.addMonth(month);
+
+            currentZodiacName = astrology.fetchZodiacSign();
+            currentZodiacDescription = astrology.fetchZodiacSignDescription();
+
+            //Lets update the DOM
+            zodiacName.innerHTML = currentZodiacName;
+            zodiacDescription.innerHTML = currentZodiacDescription;
+        });
+
+        dateButton.addEventListener('click', function(event){
+            event.preventDefault();
+
+            var dateObject = document.getElementById('dateObjectInput').value;
+            astrology.addFullDateString(dateObject);
+
+            currentZodiacName = astrology.fetchZodiacSign();
+            currentZodiacDescription = astrology.fetchZodiacSignDescription();
+
+            //Lets update the DOM
+            zodiacName.innerHTML = currentZodiacName;
+            zodiacDescription.innerHTML = currentZodiacDescription;
+
+        });
+
+</script>
+</body>
+</html>

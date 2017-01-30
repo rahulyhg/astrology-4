@@ -1,0 +1,7 @@
+{
+  "apps": [{
+    "name": "astrology",
+    "script": "run/astrology.js",
+    "log_date_format":"YYYY-MM-DD HH:mm:ss"
+  }]
+}

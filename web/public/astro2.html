@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="HandheldFriendly" content="true">
+</head>
+<body>
+<style type="text/css">
+    #svg{
+        width: 600px;
+        height: 600px;
+    }
+</style>
+
+<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+<script type="text/javascript">
+var svg = {
+    element  : document.getElementById("svg"),
+    namespace : document.getElementById("svg").getAttribute("xmlns"),
+    width    : 600
+};
+
+
+
+
+/**
+ * 创建line画线实例对象,接收参数并且拼装dom 添加属性之后返回对象
+ * @param x1    起始坐标 x
+ * @param y1    起始坐标 y
+ * @param x2    终点坐标 x
+ * @param y2    终点坐标 y
+ * @param color 填充色
+ * @param dash  是否为虚线
+ * @returns {Element}
+ */
+function drawLine(x1 , y1 , x2 , y2 , color , dash) {
+    var line = document.createElementNS(svg.namespace, "line");
+
+    line.setAttributeNS(null, "x1", x1 );
+    line.setAttributeNS(null, "y1", y1 );
+    line.setAttributeNS(null, "x2", x2 );
+    line.setAttributeNS(null, "y2", y2 );
+
+    if(typeof(dash) != undefined && dash == true) {
+        line.setAttributeNS(null, "stroke-dasharray", "1,5" );
+    }
+
+    if(color == false) {
+        line.setAttributeNS(null, "stroke", "RGB(169,169,169)");
+    } else {
+        line.setAttributeNS(null, "stroke", color);
+    }
+    return line;
+}
+
+/**
+ * 画圆
+ * @param cx    圆心 x
+ * @param cy    圆心 y
+ * @param r     半径
+ * @param stroke
+ * @param stroke_width
+ * @param fill
+ * @returns {Element}
+ */
+function drawCircle(cx , cy , r , stroke , stroke_width , fill ) {
+    var circle = document.createElementNS(svg.namespace, "circle");
+    circle.setAttributeNS(null, "cx",cx );
+    circle.setAttributeNS(null, "cy",cy );
+    circle.setAttributeNS(null, "r", r );
+    circle.setAttributeNS(null, "stroke",stroke);
+    circle.setAttributeNS(null, "stroke-width",stroke_width );
+    circle.setAttributeNS(null, "fill", fill);
+    return circle;
+}
+
+svg.drawXp = function(){
+
+    var cx = parseInt(this.width/2);
+    var cy = parseInt(this.width/2);
+    var r = parseInt(this.width/2);
+    var stroke = "RGB(220,220,220)";
+    var stroke_width = 1;
+    var fill = 'RGB(236,236,236)';
+    var circle = drawCircle(cx,cy,r,stroke,stroke_width,fill);
+    this.element.appendChild(circle);
+
+
+    this.drawXpBackGroundLine(360,'#DEDEDE',parseInt(this.width/2) - 55);
+    this.drawXpBackGroundLine(60,'#FF0000',parseInt(this.width/2) - 55);
+    this.drawXpBackGroundLine(12,'#FF23C5',parseInt(this.width/2));
+
+    r = parseInt(this.width/2)-(this.width/10)-15;
+    stroke = 'RGB(236,236,236)';
+    stroke_width = 1;
+    fill = 'RGB(255,255,255)';//白色
+    circle = drawCircle(cx,cy,r,stroke,stroke_width,fill);
+    this.element.appendChild(circle);
+};
+
+svg.drawXpBackGroundLine = function(splitX,color,r){
+    //从水平位置开始绘起
+    var offset = parseInt(360/splitX);
+
+    for(var i = 0;i < 360; i += offset){
+        var tmpY = Math.sin(2*Math.PI/360*i)*r;
+        var tmpX = Math.cos(2*Math.PI/360*i)*r;
+        var offsetCircleCenterX = this.width/2;
+        var offsetCircleCenterY = this.width/2;
+        var x1 = offsetCircleCenterX - tmpX;
+        var y1 = offsetCircleCenterY - tmpY;
+        var x2 = offsetCircleCenterX + tmpX;
+        var y2 = offsetCircleCenterY + tmpY;
+        this.element.appendChild(drawLine(x1,y1,x2,y2,color,false));
+    }
+
+};
+
+
+svg.drawXp();
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+{
+  "ver": 1,
+  "project": "astrology",
+  "dev": {
+    "sessionKey": "sessionTestKey01234567",
+    "sessionExpire": 1800,
+    "failLoginRedirect": "login",
+    "redis": {
+      "init": false,
+      "redisIP": "127.0.0.1",
+      "redisPort": 6379
+    },
+    "mongo": {
+      "init": false,
+      "mongoDbName": "astrology",
+      "mongoUrl": "mongodb://astrology:testDbpasswd@127.0.0.1:27017/astrology"
+    },
+    "mysql": {
+      "init": false,
+      "config": {
+        "connectionLimit": 60,
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "testDbpasswd",
+        "database": "astrology"
+      }
+    },
+    "mysqlCluster": {
+      "init": false,
+      "config": {
+        "master1": {
+          "connectionLimit": 60,
+          "host": "127.0.0.1",
+          "user": "root",
+          "password": "testDbpasswd",
+          "database": "astrology"
+        },
+        "slave1": {
+          "connectionLimit": 60,
+          "host": "127.0.0.1",
+          "user": "root",
+          "password": "testDbpasswd",
+          "database": "astrology"
+        }
+      }
+    },
+    "startPort": 15001
+  },
+  "test": {
+    "sessionKey": "sessionTestKey01234",
+    "sessionExpire": 1800,
+    "failLoginRedirect": "login",
+    "startPort": 15001
+  },
+  "product": {
+    "sessionKey": "sessionTestKey01567",
+    "sessionExpire": 1800,
+    "failLoginRedirect": "login",
+    "redis": {
+      "init": false,
+      "redisIP": "10.1.1.12",
+      "redisPort": 6379
+    },
+    "mongo": {
+      "init": false,
+      "mongoDbName": "astrology",
+      "mongoUrl": "mongodb://astrology:testDbpasswd@10.1.1.12:27017/astrology"
+    },
+    "mysqlCluster": {
+      "init": false,
+      "config": {
+        "master1": {
+          "connectionLimit": 60,
+          "host": "10.1.1.15",
+          "user": "dbUserName",
+          "password": "testDbpasswd",
+          "database": "astrology"
+        },
+        "slave1": {
+          "connectionLimit": 60,
+          "host": "10.1.1.16",
+          "user": "dbUserName",
+          "password": "testDbpasswd",
+          "database": "astrology"
+        },
+        "slave2": {
+          "connectionLimit": 60,
+          "host": "10.1.1.17",
+          "user": "dbUserName",
+          "password": "testDbpasswd",
+          "database": "astrology"
+        }
+      }
+    },
+    "startPort": 15001
+  }
+}

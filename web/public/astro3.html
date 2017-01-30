@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="HandheldFriendly" content="true">
+  <script type='text/javascript' src='js/svg.min.js' charset='utf-8'></script>
+  <script src="js/svg.connectable.js"></script>
+  <style type="text/css">
+  .main {
+    text-align: center;
+    padding: 20;
+  }
+  </style>
+</head>
+
+<body>
+  <div id="testEl">asdfasdf</div>
+  <div id="main" class="main">
+    <div id="astro"></div>
+  </div>
+  <script>
+
+
+  function astroShow(draw, houseArr, asc, mc) {
+    draw.clear();
+    var maxSize = 500;
+    var circleDiameter = 480;
+    var padding = 10;
+    draw.size('100%', '100%').viewbox(0, 0, maxSize, maxSize);
+    // var bgColor = new SVG.Color('rgb(250, 253, 185 )');
+    var bgColor = new SVG.Color('rgb(248,194,136)');
+    var strokeColor = new SVG.Color('rgb(145,84,40)');
+    var strokeColorBlue = new SVG.Color('rgb(34,108,162)');
+    // var bgColorBlue = new SVG.Color('rgb(234,255,255)');
+    var bgColorBlue = new SVG.Color('rgb(250,253,185)');
+    var strokeWidth1 = 0.5;
+    var strokeWidth2 = 1;
+    var strokeStyleOuter = {
+      width: 1.5,
+      color: strokeColor
+    };
+    var strokeStyleInner = {
+      width: strokeWidth1,
+      color: strokeColorBlue
+    };
+    var strokeStyleInner2 = {
+      width: strokeWidth2,
+      color: strokeColorBlue
+    };
+    //Ecliptic circles
+    var groupAll = draw.group();
+    var groupEcliptic = draw.group();
+    var groupHouse = draw.group();
+    var circle1 = draw.circle(circleDiameter).fill(bgColor).stroke(strokeStyleOuter);
+    var circle2 = draw.circle(circleDiameter - 80).fill(bgColorBlue).dmove(40, 40).stroke(strokeStyleOuter);
+
+
+    //Ecliptic lines
+    var lineEcliptic = draw.defs().line(0, 0, 0, circleDiameter).stroke(strokeStyleOuter);
+    var lineEclipticGroup = draw.group();
+    // for (var i = 0; i < 12; i++) {
+    //   var lineEclipticOne = lineEcliptic.clone().x(circleDiameter / 2).rotate(i * 30);
+    //   lineEclipticGroup.add(lineEclipticOne);
+    // }
+    for (var i = 0; i < 12; i++) {
+      var lineEclipticOne = draw.use(lineEcliptic).x(circleDiameter / 2).rotate(i * 30);
+      lineEclipticGroup.add(lineEclipticOne);
+    }
+
+    //Ecliptic groupEcliptic
+    groupEcliptic.add(circle1).add(lineEclipticGroup).add(circle2);
+
+    //house
+    var circle3 = draw.circle(circleDiameter - 120).fill('#FFF').dmove(60, 60).stroke(strokeStyleInner2);
+    var circle4 = circle3.clone().size(circleDiameter - 200);
+    //House lines
+    var lineHouse = draw.defs().line(0, 0, circleDiameter - 80, 0).stroke(strokeStyleInner2);
+    var lineHouseGroup = draw.group();
+
+    // for (var j = 0; j < 1; j++) {
+    for (var j = 0; j < houseArr.length; j++) {
+      var lineHouseOne = draw.use(lineHouse).move(40, circleDiameter / 2).rotate(0 - houseArr[j]);
+      // var lineHouseOne = draw.use(lineHouse).y(circleDiameter / 2).rotate(20);
+      lineHouseGroup.add(lineHouseOne);
+    }
+    var circleCenter = lineHouseGroup.clone().maskWith(circle3.clone().fill('#333').attr({
+      stroke: null
+    }));
+    groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circleCenter);
+    // groupHouse.rotate(-asc);
+    //
+    var lineAsc = draw.line(0 - padding * 2, 0, maxSize, 0).stroke(strokeStyleInner).y(circleDiameter / 2);
+    var lineMc = draw.line(0 - padding * 2, 0, maxSize, 0).stroke(strokeStyleInner2).y(circleDiameter / 2);
+    lineAsc.rotate(0 - asc);
+    lineMc.rotate(0 - mc);
+    groupHouse.add(lineAsc).add(lineMc);
+    groupHouse.rotate(asc);
+    groupEcliptic.rotate(asc);
+    groupAll.add(groupEcliptic).add(groupHouse);
+    groupAll.move(padding, padding);
+
+  }
+  function startAstro(target) {
+      if (!SVG.supported) {
+        alert('SVG not supported');
+        return false;
+      }
+      var draw = SVG(target);
+      var houseArr = [352.0564146335398,
+        35.04129140503142,
+        63.44271090260005,
+        85.69597507922174,
+        107.25433306655145,
+        133.180868936381,
+        172.05641463353982,
+        215.04129140503142,
+        243.44271090260006,
+        265.69597507922174,
+        287.25433306655145,
+        313.180868936381
+      ];
+      var asc = houseArr[0];
+      var mc = houseArr[9];
+      astroShow(draw, houseArr, asc, mc);
+      houseArr = [225.38677571201202,
+        254.9245449275749,
+        288.9354258928624,
+        324.74309363455245,
+        357.1118108559691,
+        23.675867760700157,
+        45.386775712012025,
+        74.92454492757491,
+        108.93542589286238,
+        144.74309363455245,
+        177.11181085596914,
+        203.67586776070019
+      ];
+      asc = houseArr[0];
+      mc = houseArr[9];
+      astroShow(draw, houseArr, asc, mc);
+  }
+  startAstro('astro');
+  </script>
+</body>
+
+</html>

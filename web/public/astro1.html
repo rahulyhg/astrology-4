@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+    <title>Ephemeris</title>
+    <script type='text/javascript' src='js/ephemeris-0.1.0.js' charset='utf-8'></script>
+</head>
+<body>
+    <script type='text/javascript'>
+
+    var date = {year: 1981, month: 2, day: 6, hours: 1, minutes: 0, seconds: 0};
+
+    $const.tlong = 116.28; // longitude
+    $const.glat = 39.55; // latitude
+
+    $processor.init ();
+
+    // sun, mercury, venus, moon, mars, jupiter, saturn, uranus, neptune, pluto, chiron, sirius
+    var body = $moshier.body.sun;
+
+    $processor.calc (date, body);
+    console.log(body.position);
+    body = $moshier.body.moon;
+    $processor.calc (date, body);
+    console.log(body.position);
+    document.write(JSON.stringify(body.position));
+    </script>
+
+</body>
+</html>

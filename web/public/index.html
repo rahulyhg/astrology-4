@@ -1,0 +1,765 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+
+<head>
+    <title>Ephemeris</title>
+    <style type='text/css'>
+    * {
+        font: 8pt Tahoma;
+    }
+
+    html {
+        padding: 0;
+        margin: 0;
+    }
+
+    canvas {
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid gray;
+        border-left: 1px solid gray;
+        border-bottom: 1px solid white;
+        border-right: 1px solid white;
+        background: white;
+    }
+
+    td {
+        vertical-align: middle;
+        /*width: 200px;*/
+    }
+
+    input[type=button] {
+        border-style: outset;
+        border-width: 1px;
+        border-color: white;
+    }
+
+    input[type=button]:active {
+        border-style: inset;
+        border-width: 1px;
+        border-color: white;
+    }
+
+    textarea {
+        padding: 0;
+        margin: 0;
+        border-style: inset;
+        border-width: 1px;
+        box-sizing: border-box;
+        width: 100%;
+        resize: none;
+        /*height: 70px;*/
+    }
+
+    select {
+        width: 100%;
+    }
+
+    thead tr td {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    body table {
+        width: 100%;
+    }
+
+    body {
+        width: 800px;
+        margin: auto;
+        padding: 0;
+        background: #dcdcdc;
+    }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://xp.ixingpan.com/statics/css/chart.css?v=2016082402" title="chart-default" media="all" />
+    <script type='text/javascript' src='index.js' charset='utf-8'></script>
+    <script type='text/javascript' src='common.js' charset='utf-8'></script>
+    <script type='text/javascript' src='load.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/index.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/index.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/constant.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/julian.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/delta.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/epsilon.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/lonlat.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/gplan.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/precess.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/util.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/kepler.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/body.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/sun.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/aberration.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/altaz.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/constellation.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/deflection.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/diurnal.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/fk4fk5.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/light.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/moon.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/nutation.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/planet.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/refraction.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/siderial.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/star.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/transit.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/vearth.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/processor.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/index.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/mercury.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/venus.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/earth.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/moonlr.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/moonlat.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/mars.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/jupiter.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/saturn.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/uranus.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/neptune.js' charset='utf-8'></script>
+    <script type='text/javascript' src='astronomy/moshier/plan404/pluto.js' charset='utf-8'></script>
+    <script type='text/javascript' src='shortcut.js' charset='utf-8'></script>
+    <script>
+    function newUpdate() {
+        $const.tlong = 116.28;
+        $const.glat = 39.55;
+        $processor.init();
+        $e.update();
+    }
+    </script>
+</head>
+
+<body onload='$e.load()'>
+    <table cellpadding='0' cellspacing='3'>
+        <thead>
+            <tr>
+                <td>Ephemerides</td>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <table>
+                    <thead>
+                        <tr>
+                            <td colspan='6'>Time</td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td></td>
+                        <td colspan='2' style='text-align: center'>Terrestrial
+                            <input type='button' value='=' onclick='newUpdate()'>
+                        </td>
+                        <td colspan='2' style='text-align: center'>Universal</td>
+                        <td style='text-align: center'>Delta</td>
+                    </tr>
+                    <tr>
+                        <td>Gregorian</td>
+                        <td>
+                            <textarea id='$const.date' rows='1'>01.01.1986 00:00:00.000</textarea>
+                        </td>
+                        <td rowspan='2' style='text-align: center'>=</td>
+                        <td>
+                            <textarea class='$const.date.universalDateString' rows='1' disabled='disabled'>01.01.2012 00:00:00.000</textarea>
+                        </td>
+                        <td rowspan='2' style='text-align: center'>+</td>
+                        <td>
+                            <textarea class='"00:00:"+($const.date.delta)' rows='1' disabled='disabled'>00:00:00.000</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Julian</td>
+                        <td>
+                            <textarea class='$const.date.julian' rows='1' disabled='disabled'>2451545.0</textarea>
+                        </td>
+                        <td>
+                            <textarea class='$const.date.universal' rows='1' disabled='disabled'>2451545.0</textarea>
+                        </td>
+                        <td>
+                            <textarea class='$const.date.delta/86400' rows='1' disabled='disabled'>00:00:00.000</textarea>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style='vertical-align: top'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Observer</td>
+                            <td>Body
+                                <input type='button' value='=' onclick='newUpdate()'>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>Body</td>
+                                    <td colspan='2'>
+                                        <select>
+                                            <option label='earth'>earth</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td style='text-align: center'>Geodetic</td>
+                                    <td style='text-align: center'>Geodecentric</td>
+                                </tr>
+                                <tr>
+                                    <td>Longitude</td>
+                                    <td>
+                                        <textarea class='$const.tlong' rows='1'></textarea>
+                                    </td>
+                                    <td>
+                                        <textarea class='$const.tlong' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Latitude</td>
+                                    <td>
+                                        <textarea class='$const.glat' rows='1'></textarea>
+                                    </td>
+                                    <td>
+                                        <textarea class='$const.tlat' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Height</td>
+                                    <td>
+                                        <textarea class='$const.height' rows='1'></textarea>
+                                    </td>
+                                    <td>
+                                        <textarea class='$const.trho*$const.aearth/1000' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style='vertical-align: top'>
+                            <table>
+                                <tr>
+                                    <td>Body</td>
+                                    <td>
+                                        <select id='$const.body' class='$moshier.body'></select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Apparent Longitude (dms 30&deg;)</td>
+                                    <td>
+                                        <textarea class='$const.body.position.apparentLongitude30String' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Apparent Longitude (dms 360&deg;)</td>
+                                    <td>
+                                        <textarea class='$const.body.position.apparentLongitudeString' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Apparent Longitude (dd)</td>
+                                    <td>
+                                        <textarea class='$const.body.position.apparentLongitude' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Geocentric distance (km)</td>
+                                    <td>
+                                        <textarea class='$const.body.position.geocentricDistance' rows='1' disabled='disabled'></textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div style="width: 100%;margin:0px;padding:0px">
+        <div id="achart" class="text-center" style="margin: auto;padding:5px 10px 15px 5px;">
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:math="http://exslt.org/math" version="1.0" viewBox="0 0 600 600" id="chart">
+                <title>爱星盘免费在线星盘(www.ixingpan.com)</title>
+                <defs>
+                    <marker id="Arrow" viewBox="-2 -2 14 14" refX="5" refY="5" markerUnits="strokeWidth" markerWidth="14" markerHeight="14" orient="auto">
+                        <path d="M 0 0 L 5 5 L 0 10" />
+                    </marker>
+                    <g id="dot">
+                        <circle cx="0" cy="0" r="1.2" />
+                    </g>
+                </defs>
+                <g id="main" transform="&#10;&#9;&#9;&#9;&#9;&#9;&#9;scale(1.15),&#10;&#9;&#9;&#9;&#9;&#9;&#9;translate(-37.5,-37.5)&#9;&#9;&#9;&#9;&#9;&#9;&#10;&#9;&#9;&#9;&#9;&#9;">
+                    <g id="chartbody">
+                        <circle id="hcircle" cx="300" cy="300" r="250" />
+                    </g>
+                    <g id="houses">
+                        <circle id="hcircle" cx="300" cy="300" r="216" />
+                        <circle id="hcirclemin" cx="300" cy="300" r="186" />
+                        <circle id="hcirclemin_2" cx="300" cy="300" r="146" class="zoomin" />
+                        <path d="M 300,295 L 300,305" class="origin" />
+                        <path d="M 295,300 L 305,300" class="origin" />
+                    </g>
+                    <g id="aspects">
+                        <line x1="303.547440491757" y1="445.956896602927" x2="180.791594581714" y2="215.706725786517" class="Trine Sun Jupiter SunJupiter Trine_2 OrbLevel4" title="Trine between Sun and Jupiter" />
+                        <line x1="303.547440491757" y1="445.956896602927" x2="312.22927126946" y2="154.513076449401" class="Opposition Sun MeanNode SunMeanNode Opposition_2 OrbLevel4" title="Opposition between Sun and MeanNode" />
+                        <line x1="303.547440491757" y1="445.956896602927" x2="154" y2="299.99999947589" class="Square Sun Asc SunAsc Square_2 OrbLevel1" title="Square between Sun and Asc" />
+                        <line x1="303.547440491757" y1="445.956896602927" x2="287.780675727527" y2="154.512240671855" class="Opposition Sun MC SunMC Opposition_2 OrbLevel2" title="Opposition between Sun and MC" />
+                        <path d="M329.374648438326,445.05561012634 A 149,149 0 0 1 347.68172108289,440.108720194617" class="Conjunction Moon Mercury MoonMercury Conjunction_2 OrbLevel4" title="Conjunction between Moon and Mercury" />
+                        <path d="M329.374648438326,445.05561012634 A 149,149 0 0 1 334.77467525599,443.856602075958" class="Conjunction Moon Mars MoonMars Conjunction_2 OrbLevel2" title="Conjunction between Moon and Mars" />
+                        <line x1="328.9776937297" y1="443.095399178687" x2="158.552688659717" y2="336.175379951082" class="Square Moon Uranus MoonUranus Square_2 OrbLevel2" title="Square between Moon and Uranus" />
+                        <line x1="328.9776937297" y1="443.095399178687" x2="186.160448850535" y2="391.414203459245" class="Sextile Moon Neptune MoonNeptune Sextile_2 OrbLevel2" title="Sextile between Moon and Neptune" />
+                        <line x1="328.9776937297" y1="443.095399178687" x2="163.800480631778" y2="247.410163302543" class="Trine Moon Pluto MoonPluto Trine_2 OrbLevel2" title="Trine between Moon and Pluto" />
+                        <line x1="328.9776937297" y1="443.095399178687" x2="287.780675727527" y2="154.512240671855" class="Opposition Moon MC MoonMC Opposition_2 OrbLevel4" title="Opposition between Moon and MC" />
+                        <path d="M347.68172108289,440.108720194617 A 149,149 0 0 1 334.77467525599,443.856602075958" class="Conjunction Mercury Mars MercuryMars Conjunction_2 OrbLevel3" title="Conjunction between Mercury and Mars" />
+                        <line x1="347.037373500688" y1="438.215359110906" x2="158.552688659717" y2="336.175379951082" class="Square Mercury Uranus MercuryUranus Square_2 OrbLevel3" title="Square between Mercury and Uranus" />
+                        <line x1="347.037373500688" y1="438.215359110906" x2="155.61657710679" y2="278.333731432469" class="Trine Mercury Juno MercuryJuno Trine_2 OrbLevel2" title="Trine between Mercury and Juno" />
+                        <line x1="265.64638471925" y1="441.900772080853" x2="158.552688659717" y2="336.175379951082" class="Sextile Venus Uranus VenusUranus Sextile_2 OrbLevel2" title="Sextile between Venus and Uranus" />
+                        <line x1="265.64638471925" y1="441.900772080853" x2="155.61657710679" y2="278.333731432469" class="Square Venus Juno VenusJuno Square_2 OrbLevel4" title="Square between Venus and Juno" />
+                        <path d="M265.175787249651,443.844618273742 A 149,149 0 0 1 252.844003173453,440.286535217371" class="Conjunction Venus Eros VenusEros Conjunction_2 OrbLevel3" title="Conjunction between Venus and Eros" />
+                        <line x1="334.30474721199" y1="441.912593939796" x2="158.552688659717" y2="336.175379951082" class="Square Mars Uranus MarsUranus Square_2 OrbLevel1" title="Square between Mars and Uranus" />
+                        <line x1="334.30474721199" y1="441.912593939796" x2="186.160448850535" y2="391.414203459245" class="Sextile Mars Neptune MarsNeptune Sextile_2 OrbLevel4" title="Sextile between Mars and Neptune" />
+                        <line x1="334.30474721199" y1="441.912593939796" x2="163.800480631778" y2="247.410163302543" class="Trine Mars Pluto MarsPluto Trine_2 OrbLevel4" title="Trine between Mars and Pluto" />
+                        <path d="M179.158602726669,214.552023400031 A 149,149 0 0 1 180.162201512278,213.150117710983" class="Conjunction Jupiter Saturn JupiterSaturn Conjunction_2 OrbLevel1" title="Conjunction between Jupiter and Saturn" />
+                        <line x1="180.791594581714" y1="215.706725786517" x2="312.22927126946" y2="154.513076449401" class="Sextile Jupiter MeanNode JupiterMeanNode Sextile_2 OrbLevel1" title="Sextile between Jupiter and MeanNode" />
+                        <line x1="181.781631221572" y1="214.323764768943" x2="312.22927126946" y2="154.513076449401" class="Sextile Saturn MeanNode SaturnMeanNode Sextile_2 OrbLevel1" title="Sextile between Saturn and MeanNode" />
+                        <line x1="158.552688659717" y1="336.175379951082" x2="253.481246373812" y2="438.390771227947" class="Sextile Uranus Eros UranusEros Sextile_2 OrbLevel3" title="Sextile between Uranus and Eros" />
+                        <line x1="186.160448850535" y1="391.414203459245" x2="163.800480631778" y2="247.410163302543" class="Sextile Neptune Pluto NeptunePluto Sextile_2 OrbLevel1" title="Sextile between Neptune and Pluto" />
+                        <line x1="186.160448850535" y1="391.414203459245" x2="287.780675727527" y2="154.512240671855" class="Trine Neptune MC NeptuneMC Trine_2 OrbLevel3" title="Trine between Neptune and MC" />
+                        <line x1="163.800480631778" y1="247.410163302543" x2="253.481246373812" y2="438.390771227947" class="Square Pluto Eros PlutoEros Square_2 OrbLevel2" title="Square between Pluto and Eros" />
+                        <line x1="163.800480631778" y1="247.410163302543" x2="287.780675727527" y2="154.512240671855" class="Sextile Pluto MC PlutoMC Sextile_2 OrbLevel4" title="Sextile between Pluto and MC" />
+                        <line x1="312.22927126946" y1="154.513076449401" x2="155.61657710679" y2="278.333731432469" class="Square MeanNode Juno MeanNodeJuno Square_2 OrbLevel3" title="Square between MeanNode and Juno" />
+                        <line x1="312.22927126946" y1="154.513076449401" x2="154" y2="299.99999947589" class="Square MeanNode Asc MeanNodeAsc Square_2 OrbLevel4" title="Square between MeanNode and Asc" />
+                        <line x1="154" y1="299.99999947589" x2="287.780675727527" y2="154.512240671855" class="Square Asc MC AscMC Square_2 OrbLevel4" title="Square between Asc and MC" />
+                    </g>
+                    <g id="zodiac">
+                        <path d="M 447.37912622272 449.5974369895 L 478.96036755616 481.654030630107 A 255 255 0 0,0 545.811239848702 367.836821594498 L 502.432785757755 355.865617783704 A 210 210 0 0, 1 447.37912622272 449.5974369895" class="xp_zodiac_area xp_zodiac_area_Aries" />
+                        <g id="Mars">
+                            <text id="xp_p_4" x="477.096679058761" y="455.059620564807" class="xp_symbol xp_symbol_ruled Mars">&#81</text>
+                        </g>
+                        <g id="Aries">
+                            <text id="xp_s_0" x="488.045833561408" y="425.497508376653" class="xp_symbol xp_symbol_sign Aries">&#65</text>
+                        </g>
+                        <path d="M 502.432785757755 355.865617783704 L 545.811239848702 367.836821594498 A 255 255 0 0,0 546.79718908036 235.842791036135 L 503.244743948532 247.164651441523 A 210 210 0 0, 1 502.432785757755 355.865617783704" class="xp_zodiac_area xp_zodiac_area_Taurus" />
+                        <g id="Venus">
+                            <text id="xp_p_3" x="525.462211079034" y="343.44300248594" class="xp_symbol xp_symbol_ruled Venus">&#80</text>
+                        </g>
+                        <g id="Taurus">
+                            <text id="xp_s_1" x="519.993527972702" y="309.732910493654" class="xp_symbol xp_symbol_sign Taurus">&#66</text>
+                        </g>
+                        <path d="M 503.244743948532 247.164651441523 L 546.79718908036 235.842791036135 A 255 255 0 0,0 481.654030951323 121.03963276989 L 449.597437254031 152.620874045792 A 210 210 0 0, 1 503.244743948532 247.164651441523" class="xp_zodiac_area xp_zodiac_area_Gemini" />
+                        <g id="Mercury">
+                            <text id="xp_p_2" x="511.539681509009" y="222.59740972667" class="xp_symbol xp_symbol_ruled Mercury">&#79</text>
+                        </g>
+                        <g id="Gemini">
+                            <text id="xp_s_2" x="489.778744053266" y="193.503980644362" class="xp_symbol xp_symbol_sign Gemini">&#67</text>
+                        </g>
+                        <path d="M 449.597437254031 152.620874045792 L 481.654030951323 121.03963276989 A 255 255 0 0,0 367.836822035704 54.1887602730578 L 355.86561814705 97.5672143425182 A 210 210 0 0, 1 449.597437254031 152.620874045792" class="xp_zodiac_area xp_zodiac_area_Cancer" />
+                        <g id="Moon">
+                            <text id="xp_p_1" x="439.059620895242" y="124.903321203401" class="xp_symbol xp_symbol_ruled Moon">&#78</text>
+                        </g>
+                        <g id="Cancer">
+                            <text id="xp_s_3" x="405.497508735714" y="107.954166649488" class="xp_symbol xp_symbol_sign Cancer">&#68</text>
+                        </g>
+                        <path d="M 355.86561814705 97.5672143425182 L 367.836822035704 54.1887602730578 A 255 255 0 0,0 235.842791479111 53.2028108044844 L 247.164651806327 96.7552559566342 A 210 210 0 0, 1 355.86561814705 97.5672143425182" class="xp_zodiac_area xp_zodiac_area_Leo" />
+                        <g id="Sun">
+                            <text id="xp_p_0" x="327.443002903186" y="76.5377889827873" class="xp_symbol xp_symbol_ruled Sun">&#77</text>
+                        </g>
+                        <g id="Leo">
+                            <text id="xp_s_4" x="289.732910910058" y="76.0064720304081" class="xp_symbol xp_symbol_sign Leo">&#69</text>
+                        </g>
+                        <path d="M 247.164651806327 96.7552559566342 L 235.842791479111 53.2028108044844 A 255 255 0 0,0 121.03963309594 118.345968727462 L 152.620874314304 150.402562481439 A 210 210 0 0, 1 247.164651806327 96.7552559566342" class="xp_zodiac_area xp_zodiac_area_Virgo" />
+                        <g id="Mercury">
+                            <text id="xp_p_2" x="206.597410118926" y="90.4603183359075" class="xp_symbol xp_symbol_ruled Mercury">&#79</text>
+                        </g>
+                        <g id="Virgo">
+                            <text id="xp_s_5" x="173.503981006534" y="106.221255741226" class="xp_symbol xp_symbol_sign Virgo">&#70</text>
+                        </g>
+                        <path d="M 152.620874314304 150.402562481439 L 121.03963309594 118.345968727462 A 255 255 0 0,0 54.1887603948178 232.163177523091 L 97.5672144427912 244.134381489604 A 210 210 0 0, 1 152.620874314304 150.402562481439" class="xp_zodiac_area xp_zodiac_area_Libra" />
+                        <g id="Venus">
+                            <text id="xp_p_3" x="108.903321465562" y="162.940378774324" class="xp_symbol xp_symbol_ruled Venus">&#80</text>
+                        </g>
+                        <g id="Libra">
+                            <text id="xp_s_6" x="87.9541668603841" y="190.502490905224" class="xp_symbol xp_symbol_sign Libra">&#71</text>
+                        </g>
+                        <path d="M 97.5672144427912 244.134381489604 L 54.1887603948178 232.163177523091 A 255 255 0 0,0 53.2028106893288 364.157208077914 L 96.7552558618002 352.83534782887 A 210 210 0 0, 1 97.5672144427912 244.134381489604" class="xp_zodiac_area xp_zodiac_area_Scorpio" />
+                        <g id="Pluto">
+                            <text id="xp_p_9" x="60.5377890446089" y="274.556996679569" class="xp_symbol xp_symbol_ruled Pluto">&#86</text>
+                        </g>
+                        <g id="Scorpio">
+                            <text id="xp_s_7" x="56.0064720335185" y="306.267088673537" class="xp_symbol xp_symbol_sign Scorpio">&#72</text>
+                        </g>
+                        <path d="M 96.7552558618002 352.83534782887 L 53.2028106893288 364.157208077914 A 255 255 0 0,0 118.345968406247 478.96036657801 L 150.402562216909 447.379125417184 A 210 210 0 0, 1 96.7552558618002 352.83534782887" class="xp_zodiac_area xp_zodiac_area_Sagittarius" />
+                        <g id="Jupiter">
+                            <text id="xp_p_5" x="74.4603181808238" y="395.402589488818" class="xp_symbol xp_symbol_ruled Jupiter">&#82</text>
+                        </g>
+                        <g id="Sagittarius">
+                            <text id="xp_s_8" x="86.2212555357172" y="422.496018631294" class="xp_symbol xp_symbol_sign Sagittarius">&#73</text>
+                        </g>
+                        <path d="M 150.402562216909 447.379125417184 L 118.345968406247 478.96036657801 A 255 255 0 0,0 232.163177081885 545.811239483422 L 244.134381126258 502.432785456936 A 210 210 0 0, 1 150.402562216909 447.379125417184" class="xp_zodiac_area xp_zodiac_area_Capricorn" />
+                        <g id="Saturn">
+                            <text id="xp_p_6" x="146.94037844389" y="493.096678272276" class="xp_symbol xp_symbol_ruled Saturn">&#83</text>
+                        </g>
+                        <g id="Capricorn">
+                            <text id="xp_s_9" x="170.502490546162" y="508.04583292872" class="xp_symbol xp_symbol_sign Capricorn">&#74</text>
+                        </g>
+                        <path d="M 244.134381126258 502.432785456936 L 232.163177081885 545.811239483422 A 255 255 0 0,0 364.157207634938 546.797189425827 L 352.835347464067 503.244744233034 A 210 210 0 0, 1 244.134381126258 502.432785456936" class="xp_zodiac_area xp_zodiac_area_Aquarius" />
+                        <g id="Uranus">
+                            <text id="xp_p_7" x="258.556996262323" y="541.462210893569" class="xp_symbol xp_symbol_ruled Uranus">&#84</text>
+                        </g>
+                        <g id="Aquarius">
+                            <text id="xp_s_10" x="286.267088257133" y="539.993527963371" class="xp_symbol xp_symbol_sign Aquarius">&#75</text>
+                        </g>
+                        <path d="M 352.835347464067 503.244744233034 L 364.157207634938 546.797189425827 A 255 255 0 0,0 478.960366251959 481.654031914969 L 447.379125148673 449.597438047621 A 210 210 0 0, 1 352.835347464067 503.244744233034" class="xp_zodiac_area xp_zodiac_area_Pisces" />
+                        <g id="Neptune">
+                            <text id="xp_p_8" x="379.402589096562" y="527.53968197426" class="xp_symbol xp_symbol_ruled Neptune">&#85</text>
+                        </g>
+                        <g id="Pisces">
+                            <text id="xp_s_11" x="402.496018269122" y="509.778744669791" class="xp_symbol xp_symbol_sign Pisces">&#76</text>
+                        </g>
+                    </g>
+                    <g id="cuspids">
+                        <line x1="154" y1="299.99999947589" x2="90" y2="299.999999246143" class="House cuspid1" title="House 1" />
+                        <text id="xp_h_1" x="101.474518092766" y="355.219416366597" class="House House_2 House1 xp_symbol xp_symbol_house" title="House House_21">1</text>
+                        <line x1="90" y1="299.999999246143" x2="40" y2="299.999999066654" class="House cuspid1" />
+                        <line x1="300" y1="300" x2="154" y2="299.99999947589" class="axisline axisline1" />
+                        <line x1="172.784333891975" y1="371.639195254354" x2="117.018562447361" y2="403.042678105577" class="House cuspid2" title="House 2" />
+                        <text id="xp_h_2" x="153.809045829485" y="445.818600607667" class="House House_2 House2 xp_symbol xp_symbol_house" title="House House_22">2</text>
+                        <line x1="300" y1="300" x2="172.784333891975" y2="371.639195254354" class="axisline axisline2" />
+                        <line x1="229.844560549666" y1="428.039893453293" x2="199.091491201574" y2="484.166970035558" class="House cuspid3" title="House 3" />
+                        <text id="xp_h_3" x="251.971703996307" y="498.702552711711" class="House House_2 House3 xp_symbol xp_symbol_house" title="House House_23">3</text>
+                        <line x1="300" y1="300" x2="229.844560549666" y2="428.039893453293" class="axisline axisline3" />
+                        <line x1="312.219323750202" y1="445.48775937201" x2="317.575739640701" y2="509.263215535082" class="House cuspid4" title="House 4" />
+                        <text id="xp_h_4" x="363.890549166156" y="489.874362849262" class="House House_2 House4 xp_symbol xp_symbol_house" title="House House_24">4</text>
+                        <line x1="317.575739640701" y1="509.263215535082" x2="321.760439555154" y2="559.087790662483" class="House cuspid4" />
+                        <line x1="300" y1="300" x2="312.219323750202" y2="445.48775937201" class="axisline axisline4" />
+                        <line x1="388.186139164547" y1="416.358088929181" x2="426.843076880513" y2="467.364374487178" class="House cuspid5" title="House 5" />
+                        <text id="xp_h_5" x="447.76596350291" y="428.496949521095" class="House House_2 House5 xp_symbol xp_symbol_house" title="House House_25">5</text>
+                        <line x1="300" y1="300" x2="388.186139164547" y2="416.358088929181" class="axisline axisline5" />
+                        <line x1="433.028299234431" y1="360.162044536357" x2="491.342074241305" y2="386.534447620787" class="House cuspid6" title="House 6" />
+                        <text id="xp_h_6" x="486.552101257836" y="346.732290839066" class="House House_2 House6 xp_symbol xp_symbol_house" title="House House_26">6</text>
+                        <line x1="300" y1="300" x2="433.028299234431" y2="360.162044536357" class="axisline axisline6" />
+                        <line x1="446" y1="300.000000000008" x2="510" y2="300.000000000011" class="House cuspid7" title="House 7" />
+                        <text id="xp_h_7" x="484.525481726956" y="254.780582945862" class="House House_2 House7 xp_symbol xp_symbol_house" title="House House_27">7</text>
+                        <line x1="510" y1="300.000000000011" x2="560" y2="300.000000000014" class="House cuspid7" />
+                        <line x1="300" y1="300" x2="446" y2="300.000000000008" class="axisline axisline7" />
+                        <line x1="427.21566585085" y1="228.360804288959" x2="482.98143718273" y2="196.957321237544" class="House cuspid8" title="House 8" />
+                        <text id="xp_h_8" x="432.190953664996" y="164.181398892657" class="House House_2 House8 xp_symbol xp_symbol_house" title="House House_28">8</text>
+                        <line x1="300" y1="300" x2="427.21566585085" y2="228.360804288959" class="axisline axisline8" />
+                        <line x1="370.155438990697" y1="171.960106294864" x2="400.908508137304" y2="115.833029602201" class="House cuspid9" title="House 9" />
+                        <text id="xp_h_9" x="334.028295308341" y="111.297447141005" class="House House_2 House9 xp_symbol xp_symbol_house" title="House House_29">9</text>
+                        <line x1="300" y1="300" x2="370.155438990697" y2="171.960106294864" class="axisline axisline9" />
+                        <line x1="287.780675727527" y1="154.512240671855" x2="282.424259608087" y2="90.736784528011" class="House cuspid10" title="House 10" />
+                        <text id="xp_h_10" x="222.109450170183" y="120.12563740522" class="House House_2 House10 xp_symbol xp_symbol_house" title="House House_210">10</text>
+                        <line x1="282.424259608087" y1="90.736784528011" x2="278.239559514775" y2="40.9122094156327" class="House cuspid10" />
+                        <line x1="300" y1="300" x2="287.780675727527" y2="154.512240671855" class="axisline axisline10" />
+                        <line x1="211.813860417751" y1="183.641911387389" x2="173.156922518683" y2="132.635625968163" class="House cuspid11" title="House 11" />
+                        <text id="xp_h_11" x="138.234036940414" y="181.503049923333" class="House House_2 House11 xp_symbol xp_symbol_house" title="House House_211">11</text>
+                        <line x1="300" y1="300" x2="211.813860417751" y2="183.641911387389" class="axisline axisline11" />
+                        <line x1="166.97170098154" y1="239.837954986094" x2="108.657926069338" y2="213.465551692328" class="House cuspid12" title="House 12" />
+                        <text id="xp_h_12" x="99.4478988919736" y="263.267708466125" class="House House_2 House12 xp_symbol xp_symbol_house" title="House House_212">12</text>
+                        <line x1="300" y1="300" x2="166.97170098154" y2="239.837954986094" class="axisline axisline12" />
+                    </g>
+                    <g id="planets">
+                        <line x1="313.066892589286" y1="144.548218671962" x2="312.22927126946" y2="154.513076449401" class="MeanNode" />
+                        <use x="312.22927126946" y="154.513076449401" xlink:href="#dot" class="dot MeanNode" title="MeanNode" />
+                        <g id="MeanNode">
+                            <text id="xp_p_10" x="307.072038173078" y="139.590389339036" class="xp_symbol xp_symbol_planet MeanNode">&#87</text>
+                        </g>
+                        <line x1="286.943735708865" y1="144.54732564938" x2="287.780675727527" y2="154.512240671855" class="MC" />
+                        <use x="287.780675727527" y="154.512240671855" xlink:href="#dot" class="dot MC" title="MC" />
+                        <g id="MC">
+                            <text id="xp_p_26" x="278.93940768647" y="139.589427622409" class="xp_symbol xp_symbol_planet MC">&#103</text>
+                        </g>
+                        <line x1="183.340219907616" y1="196.431203015596" x2="181.781631221572" y2="214.323764768943" class="Saturn" />
+                        <use x="181.781631221572" y="214.323764768943" xlink:href="#dot" class="dot Saturn" title="Saturn" />
+                        <g id="Saturn">
+                            <text id="xp_p_6" x="167.366390669741" y="195.464372478334" class="xp_symbol xp_symbol_planet Saturn">&#83</text>
+                        </g>
+                        <line x1="170.061554242849" y1="213.675030760412" x2="180.791594581714" y2="215.706725786517" class="Jupiter" />
+                        <use x="180.791594581714" y="215.706725786517" xlink:href="#dot" class="dot Jupiter" title="Jupiter" />
+                        <g id="Jupiter">
+                            <text id="xp_p_5" x="153.066289184606" y="214.034648511213" class="xp_symbol xp_symbol_planet Jupiter">&#82</text>
+                        </g>
+                        <line x1="154.471746428475" y1="243.808119693128" x2="163.800480631778" y2="247.410163302543" class="Pluto" />
+                        <use x="163.800480631778" y="247.410163302543" xlink:href="#dot" class="dot Pluto" title="Pluto" />
+                        <g id="Pluto">
+                            <text id="xp_p_9" x="136.277265384511" y="246.48566736183" class="xp_symbol xp_symbol_planet Pluto">&#86</text>
+                        </g>
+                        <line x1="145.727301566159" y1="276.849740434693" x2="155.61657710679" y2="278.333731432469" class="Juno" />
+                        <use x="155.61657710679" y="278.333731432469" xlink:href="#dot" class="dot Juno" title="Juno" />
+                        <g id="Juno">
+                            <text id="xp_p_19" x="126.860170917402" y="282.068951237362" class="xp_symbol xp_symbol_planet Juno">&#96</text>
+                        </g>
+                        <line x1="144" y1="299.999999439992" x2="154" y2="299.99999947589" class="Asc" />
+                        <use x="154" y="299.99999947589" xlink:href="#dot" class="dot Asc" title="Asc" />
+                        <g id="Asc">
+                            <text id="xp_p_25" x="125" y="306.999999396915" class="xp_symbol xp_symbol_planet Asc">&#102</text>
+                        </g>
+                        <line x1="148.864516650109" y1="338.653145701156" x2="158.552688659717" y2="336.175379951082" class="Uranus" />
+                        <use x="158.552688659717" y="336.175379951082" xlink:href="#dot" class="dot Uranus" title="Uranus" />
+                        <g id="Uranus">
+                            <text id="xp_p_7" x="130.238710238579" y="348.626464601245" class="xp_symbol xp_symbol_planet Uranus">&#84</text>
+                        </g>
+                        <line x1="178.363219319749" y1="397.675450271522" x2="186.160448850535" y2="391.414203459245" class="Neptune" />
+                        <use x="186.160448850535" y="391.414203459245" xlink:href="#dot" class="dot Neptune" title="Neptune" />
+                        <g id="Neptune">
+                            <text id="xp_p_8" x="162.006543882807" y="412.188946446255" class="xp_symbol xp_symbol_planet Neptune">&#85</text>
+                        </g>
+                        <line x1="241.323119014173" y1="444.544192680907" x2="253.481246373812" y2="438.390771227947" class="Eros" />
+                        <use x="253.481246373812" y="438.390771227947" xlink:href="#dot" class="dot Eros" title="Eros" />
+                        <g id="Eros">
+                            <text id="xp_p_116" x="229.809512784494" y="462.662976733284" class="xp_symbol xp_symbol_planet Eros">&#193</text>
+                        </g>
+                        <line x1="262.010821883418" y1="451.303742009332" x2="265.64638471925" y2="441.900772080853" class="Venus" />
+                        <use x="265.64638471925" y="441.900772080853" xlink:href="#dot" class="dot Venus" title="Venus" />
+                        <g id="Venus">
+                            <text id="xp_p_3" x="252.088577412911" y="469.942491394666" class="xp_symbol xp_symbol_planet Venus">&#80</text>
+                        </g>
+                        <line x1="303.790415867904" y1="455.953944315456" x2="303.547440491757" y2="445.956896602927" class="Sun" />
+                        <use x="303.547440491757" y="445.956896602927" xlink:href="#dot" class="dot Sun" title="Sun" />
+                        <g id="Sun">
+                            <text id="xp_p_0" x="297.081986319281" y="474.950401570491" class="xp_symbol xp_symbol_planet Sun">&#77</text>
+                        </g>
+                        <line x1="325.458121814017" y1="453.908687323694" x2="328.9776937297" y2="443.095399178687" class="Moon" />
+                        <use x="328.9776937297" y="443.095399178687" xlink:href="#dot" class="dot Moon" title="Moon" />
+                        <g id="Moon">
+                            <text id="xp_p_1" x="320.416438876633" y="472.747817117825" class="xp_symbol xp_symbol_planet Moon">&#78</text>
+                        </g>
+                        <line x1="346.630314378334" y1="448.867772808549" x2="334.30474721199" y2="441.912593939796" class="Mars" />
+                        <use x="334.30474721199" y="441.912593939796" xlink:href="#dot" class="dot Mars" title="Mars" />
+                        <g id="Mars">
+                            <text id="xp_p_4" x="343.217261638206" y="467.319139947668" class="xp_symbol xp_symbol_planet Mars">&#81</text>
+                        </g>
+                        <line x1="366.894900916545" y1="440.929316436878" x2="347.037373500688" y2="438.215359110906" class="Mercury" />
+                        <use x="347.037373500688" y="438.215359110906" xlink:href="#dot" class="dot Mercury" title="Mercury" />
+                        <g id="Mercury">
+                            <text id="xp_p_2" x="365.04066252551" y="458.770033085868" class="xp_symbol xp_symbol_planet Mercury">&#79</text>
+                        </g>
+                    </g>
+                    <g id="planets2" />
+                </g>
+            </svg>
+        </div>
+    </div>
+    <script>
+    var settingType = "natal";
+
+    if (settingType == '')
+        settingType = 'natal';
+
+    function resetAdvSettings() {
+        initAdvStatus(null, null);
+    }
+
+    function saveAdvSettings() {
+        var planets = '';
+        $("input[name='planets']:checked").each(function() {
+            planets += $(this).val() + ",";
+        });
+        planets = planets.substr(0, planets.length - 1);
+
+        var arrAspects = new Array();
+        $("input[name='aspects']:checked").each(function() {
+            arrAspects.push($(this).val());
+        });
+
+        var aspects = '';
+        arrAspects.forEach(function(v) {
+            aspects += v + ":" + $("#orb_" + v).val() + ","
+        })
+        aspects = aspects.substr(0, aspects.length - 1);
+        //alert(aspects);
+
+        //设置cookie
+        $.cookie('xp_planets_' + settingType, planets);
+        $.cookie('xp_aspects_' + settingType, aspects);
+
+        $('#advSettings').modal('hide');
+        url = window.location.href;
+        n = url.indexOf('hsys=');
+        newurl = '';
+        if (n > 0) {
+            newurl = url.substr(0, n) + 'hsys=' + $('#hsys').val() + url.substr(n + 6);
+        } else {
+            newurl = url;
+        }
+        location.replace(newurl);
+    }
+
+    function cancelAdvSettings() {
+        //恢复打开前的状态
+        $('#advSettings').modal('hide');
+        initAdvStatus($.cookie("xp_planets_" + settingType), $.cookie("xp_aspects_" + settingType));
+    }
+
+    function initAdvStatus(planets, aspects) {
+        //初始化行星
+        $("input[name='planets']").each(function() {
+            $(this).prop("checked", false);
+        });
+        $("input[name='aspects']").each(function() {
+            $(this).prop("checked", false);
+        });
+
+        var d;
+        d = planets;
+        //alert(d);
+        if (d == null || d == "undefined" || d == '') {
+            d = getDefaultShow(settingType);
+        }
+
+        if (d == null)
+            d = '0,1,2,3,4,5,6,7,8,9,10,19,25,26';
+
+        var values = d.split(',');
+        values.forEach(function(v) {
+            $("input[name='planets'][value=" + v + "]").prop("checked", true);
+        })
+
+        d = aspects;
+        if (d == null || d == "undefined" || d == '')
+            d = getDefaultOrb(settingType);
+        var values = d.split(',');
+        values.forEach(function(v) {
+            ns = v.split(':');
+            //alert(ns[0]);
+            $("input[name='aspects'][value=" + ns[0] + "]").prop("checked", true);
+            $("#orb_" + ns[0]).val(ns[1]);
+        });
+        //setting-typename
+        s = $("#xptype").find("option:selected").text();
+        if (s == null || s == '')
+            s = $('#xptypename').text();
+
+        if (s == null || s == '')
+            s = '本命盘';
+        $('#setting-typename').text(s);
+    }
+
+    function _initAdvOneOrbUI(orbName, maxDegree, value) {
+        var p = $("#" + orbName);
+        for (var i = 0.5; i <= maxDegree; i += 0.5) {
+            var o = $("<option></option>");
+            o.val(i);
+            o.text(i);
+            o.appendTo(p);
+            if (i >= 2) {
+                i += 0.5;
+            }
+        }
+        p.val(value);
+    }
+    /*12个参数， 5个主要*/
+    function _intiAdvAllOrbUI(d0, d180, d60, d120, d90, d30, d36, d45, d72, d135, d144, d150) {
+        _initAdvOneOrbUI('orb_0', 15, d0);
+        _initAdvOneOrbUI('orb_180', 15, d180);
+        _initAdvOneOrbUI('orb_60', 15, d60);
+        _initAdvOneOrbUI('orb_120', 15, d120);
+        _initAdvOneOrbUI('orb_90', 15, d90);
+
+        _initAdvOneOrbUI('orb_30', 6, d30);
+        _initAdvOneOrbUI('orb_36', 6, d36);
+        _initAdvOneOrbUI('orb_45', 6, d45);
+        _initAdvOneOrbUI('orb_72', 6, d72);
+        _initAdvOneOrbUI('orb_135', 6, d135);
+        _initAdvOneOrbUI('orb_144', 6, d144);
+        _initAdvOneOrbUI('orb_150', 6, d150);
+    }
+
+    var defaultPlanetCfg = {
+        "transit": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "secprogressed": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "thirdprogressed": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "progressed": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "solararc": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "solarreturn": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "lunarreturn": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "natal": "0,1,2,3,4,5,6,7,8,9,10,19,25,26,116",
+        "firdaria": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "comparision": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "composite": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "timespacemid": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "marks": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "synastry": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "current": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "comp_secprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "comp_thirprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "tmsp_secprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "tmsp_thirprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "marks_secprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "marks_thirprogr": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "thirdprogressedcompar": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "solarreturncompar": "0,1,2,3,4,5,6,7,8,9,25,26",
+        "lunarreturncompar": "0,1,2,3,4,5,6,7,8,9,25,26"
+    };
+    var defaultAscpectCfg = {
+        "transit": "0:2,180:2,120:2,90:2,60:1",
+        "secprogressed": "0:2,180:2,120:2,90:2,60:2",
+        "thirdprogressed": "0:3,180:3,120:3,90:3,60:2",
+        "progressed": "0:2,180:2,120:2,90:2,60:1",
+        "solararc": "0:2,180:2,120:2,90:2,60:1",
+        "solarreturn": "0:7,180:6,120:6,90:6,60:5",
+        "lunarreturn": "0:7,180:6,120:6,90:6,60:5",
+        "natal": "0:7,180:6,120:6,90:6,60:5",
+        "firdaria": "0:7,180:6,120:6,90:6,60:5",
+        "comparision": "0:6,180:6,120:6,90:6,60:4",
+        "composite": "0:4,180:4,120:4,90:4,60:3",
+        "timespacemid": "0:6,180:6,120:6,90:6,60:5",
+        "marks": "0:6,180:6,120:6,90:6,60:4",
+        "synastry": "0:6,180:6,120:6,90:6,60:5",
+        "comp_secprogr": "0:4,180:4,120:4,90:4,60:3",
+        "comp_thirprogr": "0:5,180:5,120:5,90:5,60:4",
+        "tmsp_secprogr": "0:2,180:2,120:2,90:2,60:2",
+        "tmsp_thirprogr": "0:4,180:4,120:4,90:4,60:3",
+        "marks_secprogr": "0:2,180:2,120:2,90:2,60:2",
+        "marks_thirprogr": "0:4,180:4,120:4,90:4,60:3",
+        "thirdprogressedcompar": "0:3,180:3,120:3,90:3,60:2",
+        "solarreturncompar": "0:6,180:6,120:6,90:6,60:4",
+        "lunarreturncompar": "0:6,180:6,120:6,90:6,60:4"
+    };
+
+    function getDefaultOrb(settingType) {
+        return defaultAscpectCfg[settingType];
+    }
+
+    function getDefaultShow(settingType) {
+        return defaultPlanetCfg[settingType];
+    }
+
+    function initAdvOrbsUI() {
+        switch (settingType) {
+            case 'secprogressed':
+            case 'progressed':
+            case 'thirdprogressed':
+            case 'solararc':
+            case 'transit':
+                _intiAdvAllOrbUI(2, 2, 1, 2, 2, 1, 1, 1, 1, 2, 2, 2);
+                break;
+            case 'solarreturn':
+            case 'lunarreturn':
+            case 'natal':
+            case 'composite':
+            case 'timespacemid':
+            case 'marks':
+            case 'synastry':
+            case 'comparision':
+            default: //'natal'
+                //用默认
+                _intiAdvAllOrbUI(7, 6, 6, 6, 6, 1, 1, 2, 2, 2, 2, 2);
+                break;
+        }
+    }
+
+    $(document).ready(function() {
+        initAdvOrbsUI();
+        initAdvStatus($.cookie("xp_planets_" + settingType), $.cookie("xp_aspects_" + settingType));
+        hsys = $.cookie('xp_hsys');
+        if (hsys == null || hsys == '') {
+            hsys = 'P';
+        }
+        $('#hsys').val(hsys);
+    });
+    </script>
+</body>
+
+</html>

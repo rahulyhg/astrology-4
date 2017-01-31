@@ -378,7 +378,7 @@
   };
 
   var hitTest = function(obj1, obj2) {
-    var hitPadding = 6;
+    var hitPadding = 4;
     var bbox1 = obj1.bbox();
     var bbox2 = obj2.bbox();
     var dist = distFromBBox(bbox1, bbox2);
@@ -392,7 +392,7 @@
     if (!hitTest(obj1, obj2)) {
       return false;
     }
-    var changeAngle = 2;
+    var changeAngle = 3;
     var bbox1 = obj1.bbox();
     var bbox2 = obj2.bbox();
     // var hitPadding = 6;
@@ -536,6 +536,7 @@
         }
       }
       if (!adjuested) {
+        console.log('j:'+j);
         break;
       }
     }

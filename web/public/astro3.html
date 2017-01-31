@@ -16,7 +16,22 @@
 
   #testEl {
     color: red;
+    font-family: 'astro';
     background-color: #eee;
+  }
+  .red{
+    color: red;
+  }
+
+  @font-face {
+    font-family: 'astro';
+    src:url('font/astro.woff') format('woff');
+    /* Legacy iOS */
+    font-weight: normal;
+    font-style: normal;
+  }
+  .starFont {
+    font-family: 'astro'
   }
   </style>
 </head>
@@ -184,6 +199,19 @@
       'r': 0
     }
   };
+  var planetsFont = [
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W'
+  ];
 
   var planets = [
     'sun',
@@ -310,7 +338,7 @@
     var dot = draw.circle(dotRadius * 2).fill('#e4e');
     var dotArr = dotArrCreate('planet', dot, planets, planetsData);
     // rotate dots
-    dotCircleCreate('planet', centerX, centerY, dotArr, radius, ascAngle);
+    var dotPlanetsArr = dotCircleCreate('planet', centerX, centerY, dotArr, radius, ascAngle);
 
     //center cross
     var crossLen = 10;
@@ -320,32 +348,24 @@
     var line2 = draw.line(0, 0, 0, crossLen).stroke({
       width: 0.5
     }).center(centerX, centerY);
+    return dotPlanetsArr;
   };
 
   var txtCircle = function(draw, centerX, centerY, radius, ascAngle) {
-    var circle = draw.circle(radius * 2).fill('#ccc').stroke({
-      width: 1,
-      color: '#000'
-    }).center(centerX, centerY);
+
 
     var textPlanets = [];
     var dotCircleName = 'txtPlanets';
     for (var i = 0; i < planets.length; i++) {
       var pName = planets[i];
-      var txtOne = draw.text(pName).font({
-        size: 10
-      }).data(dotCircleName, planetsData[pName]);
+      var txtOne = draw.text(planetsFont[i]).font({
+        'size': 20,
+        'font-family':'astro'
+      }).fill('red').data(dotCircleName, planetsData[pName]);
       textPlanets.push(txtOne);
     }
-    dotCircleCreate(dotCircleName, centerX, centerY, textPlanets, radius, ascAngle);
-
-    var crossLen = 10;
-    var line1 = draw.line(0, 0, crossLen, 0).stroke({
-      width: 0.5
-    }).center(centerX, centerY);
-    var line2 = draw.line(0, 0, 0, crossLen).stroke({
-      width: 0.5
-    }).center(centerX, centerY);
+    var txtPlanetArr = dotCircleCreate(dotCircleName, centerX, centerY, textPlanets, radius, ascAngle);
+    return txtPlanetArr;
   };
 
 
@@ -370,9 +390,27 @@
 
 
     // 行星点圆
-    // planetsCircle(draw1, 200, 200, planets, planetsData, 150, asc);
+    var pDotArr = planetsCircle(draw1, 250, 250, planets, planetsData, 150, asc);
     // 行星文字圆
-    txtCircle(draw1,250,250,150,asc);
+    var pTxtArr = txtCircle(draw1, 250, 250, 180, asc);
+
+    var linkerArr = [];
+    for (var i = 0; i < pDotArr.length; i++) {
+      var bbox1 = pDotArr[i].bbox();
+      var bbox2 = pTxtArr[i].bbox();
+      var cx1 = bbox1.cx;
+      var cy1 = bbox1.cy;
+      var cx2 = bbox2.cx;
+      var cy2 = bbox2.cy;
+      linkerArr.push(draw1.line(cx1, cy1, cx2, cy2).stroke('#ccc').back());
+    }
+
+
+    for (var i = 1; i < pTxtArr.length; i++) {
+
+
+      console.log(Math.abs(pTxtArr[i].bbox().cy - pTxtArr[i - 1].bbox().cy));
+    }
   }
   test();
 

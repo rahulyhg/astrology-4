@@ -536,8 +536,6 @@
       return groupHouse;
     };
 
-
-
     // Ecliptic text circle
     var txtEclipticCircle = function(draw, centerX, centerY, radius, ascAngle) {
       var txtEclipticText = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
@@ -546,10 +544,17 @@
         'font-family': 'astro',
         'color': 'red'
       };
+      var fontStyle2 = {
+        'size': 15,
+        'font-family': 'astro',
+        'color': 'green'
+      };
+      var txtEclipticRulerArr = ['Q', 'P', 'O', 'N', 'M', 'O', 'P', 'V', 'R', 'S', 'T', 'U'];
       var txtEcliptics = txtCircle(draw, 'txtEcliptic', centerX, centerY, txtEclipticText, fontStyle, radius, ascAngle);
+      var txtEclipticRulers = txtCircle(draw, 'txtEclipticRuler', centerX, centerY, txtEclipticRulerArr, fontStyle2, radius, ascAngle+6);
       var txtEclipticGroup = draw.group();
       for (var i = 0; i < txtEcliptics.length; i++) {
-        txtEclipticGroup.add(txtEcliptics[i]);
+        txtEclipticGroup.add(txtEcliptics[i]).add(txtEclipticRulers[i]);
       }
       return txtEclipticGroup;
     };
@@ -557,6 +562,8 @@
     // House text circle
     var txtHouseCircle = function(draw, centerX, centerY, radius, ascAngle) {
       var txts = [];
+      var txtHouseRulerArr = ['Q', 'P', 'O', 'N', 'M', 'O', 'P', 'V', 'R', 'S', 'T', 'U'];
+      var txtRulers = [];
       for (var i = 0; i < houseArr.length; i++) {
         var nextItem = houseArr[i + 1];
         if (i + 1 === houseArr.length) {
@@ -569,19 +576,27 @@
         var angle = houseArr[i] + centerAngle;
         // console.log('angle:'+angle);
         txts.push([(i + 1) + '', angle]);
+        txtRulers.push([txtHouseRulerArr[i], angle-6]);
       }
       var fontStyle = {
         'size': 15,
         'font-family': 'astro',
         'color': 'blue'
       };
+      var fontStyle2 = {
+        'size': 15,
+        'font-family': 'astro',
+        'color': 'green'
+      };
       var txtHouses = txtCircle(draw, 'txtHouse', centerX, centerY, txts, fontStyle, radius, ascAngle);
+      var txtHouseRulers = txtCircle(draw, 'txtHouseRuler', centerX, centerY, txtRulers, fontStyle2, radius, ascAngle);
       var txtHouseGroup = draw.group();
       for (var j = 0; j < txtHouses.length; j++) {
-        txtHouseGroup.add(txtHouses[j]);
+        txtHouseGroup.add(txtHouses[j]).add(txtHouseRulers[j]);
       }
       return txtHouseGroup;
     };
+
 
     var drawDotPlanets = function(centerX, centerY) {
       var groupPlanets = draw.group();
@@ -661,9 +676,9 @@
       'size': 12,
       'color': 'blue'
     };
-    var txtAsc = draw.text('Asc').font(ascFontStyle).fill(ascFontStyle.color).center(50,centerY);
+    var txtAsc = draw.text('Asc').font(ascFontStyle).fill(ascFontStyle.color).center(50, centerY);
     var txtMc = draw.text('Mc').font(ascFontStyle).fill(ascFontStyle.color);
-    var txtMcPosi = pointRotate(centerX, centerY,50, centerY, 0 - mc + asc);
+    var txtMcPosi = pointRotate(centerX, centerY, 50, centerY, 0 - mc + asc);
     txtMc.center(txtMcPosi[0], txtMcPosi[1]);
 
     groupAll.add(lineAsc).add(lineMc).add(txtAsc).add(txtMc);

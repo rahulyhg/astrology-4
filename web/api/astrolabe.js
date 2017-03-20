@@ -72,10 +72,16 @@ var queryAdtroData = function(date,timeZone,geoLon,geoLat,splitHouses) {
   });
   // Julian day
   var julday_ut = 0;
-  swisseph.swe_julday(date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL, function(re) {
-    julday_ut = re;
-    // console.log('Julian UT day for date:', julday_ut);
+
+
+  swisseph.swe_utc_to_jd(date.year, date.month, date.day, date.hour, date.minute, date.second,swisseph.SE_GREG_CAL,function (re) {
+    julday_ut = re.julianDayUT;
+    // console.log('swe_utc_to_jd:%j',re);
   });
+  // swisseph.swe_julday(date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL, function(re) {
+  //   julday_ut = re;
+  //   console.log('Julian UT day for date:', julday_ut);
+  // });
   var flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH | swisseph.SEFLG_TOPOCTR;
   swisseph.swe_set_topo(0, 0, 0);
 

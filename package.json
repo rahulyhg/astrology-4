@@ -18,7 +18,7 @@
     "ephemeris-moshier": "0.0.2-dev",
     "express": "^4.13.4",
     "horoscope": "^2.0.1",
-    "kc": "^1.0.39",
+    "kc": "^1.0.46",
     "ktool": "^0.2.38",
     "mongodb": "~2.1.x",
     "mysql": "^2.11.1",

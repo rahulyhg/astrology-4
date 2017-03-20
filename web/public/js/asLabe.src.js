@@ -543,6 +543,52 @@ var planetNames = [
   // 'nessus'
 ];
 
+var checkOneLocation = function(lon, circleArr) {
+  var len = circleArr.length;
+  for (var i = 0; i < len; i++) {
+    var a = circleArr[i];
+    var b = circleArr[i + 1];
+    if (lon < b && lon > a) {
+      return i;
+    }
+  }
+  if (circleArr[len - 1] > circleArr[0]) {
+    return len - 1;
+  }
+  for (var j = 0; j < len; j++) {
+    if (circleArr[j] > circleArr[j + 1]) {
+      return j;
+    }
+  }
+  //circleArr数据有误或lon超过arr范围，返回-1
+  return -1;
+};
+
+
+var planetsLocations = function(asc, houses, planets) {
+  var eclipticArr = [];
+  for (var i = 0; i < 12; i++) {
+    eclipticArr.push(i * 30);
+  }
+  var eclipticTxtArr = ['双鱼', '水瓶', '摩羯', '射手', '天蝎', '天秤', '处女', '狮子', '巨蟹', '双子', '金牛', '白羊'];
+  for (var j in planets) {
+    var lon = planets[j].lon;
+    var rLon = (360 - lon < 0) ? 360 - lon + 360 : 360 - lon;
+    // console.log('%s: rlon:%d', j, rLon);
+    var eclipticPo = checkOneLocation(rLon, eclipticArr);
+    planets[j].inEclipticTxt = eclipticTxtArr[eclipticPo];
+    planets[j].inEcliptic = eclipticPo;
+    planets[j].inHouses = checkOneLocation(lon, houses);
+  }
+  return planets;
+};
+
+
+// var data = { "re": 0, "t": 1489821866550, "data": { "houses": [317.4095710373527, 0.9763282091557582, 36.16228292777735, 62.77717143765739, 85.48021698457694, 108.55648558751489, 137.4095710373527, 180.97632820915575, 216.16228292777734, 242.7771714376574, 265.48021698457694, 288.5564855875149], "planets": { "sun": { "name": "sun", "lon": 289.94342709467026, "lat": 0.000998749690607235, "spd": 1.0344906567638645 }, "moon": { "name": "moon", "lon": 265.6386507152939, "lat": 2.883600625983786, "spd": 19.79296950139542 }, "mercury": { "name": "mercury", "lon": 284.8313312849967, "lat": -1.609385686203569, "spd": 1.6098382585028048 }, "venus": { "name": "venus", "lon": 271.08438134181074, "lat": 0.3168202500871548, "spd": 1.2616075014193484 }, "mars": { "name": "mars", "lon": 311.7952602027917, "lat": -1.1286196983859795, "spd": 0.7952487607099101 }, "jupiter": { "name": "jupiter", "lon": 67.03406896012608, "lat": -0.6728164080519424, "spd": -0.07076322518173583 }, "saturn": { "name": "saturn", "lon": 220.19045758323855, "lat": 2.369025473893533, "spd": 0.06601945841566703 }, "uranus": { "name": "uranus", "lon": 4.937306327392359, "lat": -0.6996854017985078, "spd": 0.0231501767000708 }, "neptune": { "name": "neptune", "lon": 331.32900754375686, "lat": -0.6087726290992674, "spd": 0.030494514646761672 }, "pluto": { "name": "pluto", "lon": 279.6409972038711, "lat": 3.314317863464566, "spd": 0.03572964089926245 }, "mean_node": { "name": "mean_node", "lon": 233.11906681960454, "lat": 0, "spd": -0.052907316216987965 }, "asc": { "name": "asc", "lon": 317.4095710373527 }, "mc": { "name": "mc", "lon": 242.7771714376574 } }, "asc": 317.4095710373527, "mc": 242.7771714376574 }, "s": "5435d00a296739678b6484bbd0bafc87", "costTime": 0 };
+// var nData = planetsLocations(data.data.asc, data.data.houses, data.data.planets);
+// console.log(nData);
+
+
 $(function() {
   $('#f_labeForm').submit(function() {
     if (!SVG.supported) {
@@ -570,10 +616,11 @@ $(function() {
         astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc);
         return false;
       } else {
-        alert('生成星盘失败!' + re.re);
+        alert('生成星盘失败! - ' + re.re);
         return false;
       }
     });
     return false;
   });
 });
+

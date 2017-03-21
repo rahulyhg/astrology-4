@@ -548,11 +548,11 @@ var checkOneLocation = function(lon, circleArr) {
   for (var i = 0; i < len; i++) {
     var a = circleArr[i];
     var b = circleArr[i + 1];
-    if (lon < b && lon > a) {
+    if (lon <= b && lon > a) {
       return i;
     }
   }
-  if (circleArr[len - 1] > circleArr[0]) {
+  if (circleArr[len - 1] > circleArr[0] || (lon > circleArr[len - 1] && lon <= circleArr[0])) {
     return len - 1;
   }
   for (var j = 0; j < len; j++) {
@@ -578,18 +578,60 @@ var planetsLocations = function(asc, houses, planets) {
     var eclipticPo = checkOneLocation(rLon, eclipticArr);
     planets[j].inEclipticTxt = eclipticTxtArr[eclipticPo];
     planets[j].inEcliptic = eclipticPo;
-    planets[j].inHouses = checkOneLocation(lon, houses);
+    // console.log('%s,%d,%d', j, lon, checkOneLocation(lon, houses));
+    planets[j].inHouses = checkOneLocation(lon, houses) + 1;
   }
   return planets;
 };
 
 
-// var data = { "re": 0, "t": 1489821866550, "data": { "houses": [317.4095710373527, 0.9763282091557582, 36.16228292777735, 62.77717143765739, 85.48021698457694, 108.55648558751489, 137.4095710373527, 180.97632820915575, 216.16228292777734, 242.7771714376574, 265.48021698457694, 288.5564855875149], "planets": { "sun": { "name": "sun", "lon": 289.94342709467026, "lat": 0.000998749690607235, "spd": 1.0344906567638645 }, "moon": { "name": "moon", "lon": 265.6386507152939, "lat": 2.883600625983786, "spd": 19.79296950139542 }, "mercury": { "name": "mercury", "lon": 284.8313312849967, "lat": -1.609385686203569, "spd": 1.6098382585028048 }, "venus": { "name": "venus", "lon": 271.08438134181074, "lat": 0.3168202500871548, "spd": 1.2616075014193484 }, "mars": { "name": "mars", "lon": 311.7952602027917, "lat": -1.1286196983859795, "spd": 0.7952487607099101 }, "jupiter": { "name": "jupiter", "lon": 67.03406896012608, "lat": -0.6728164080519424, "spd": -0.07076322518173583 }, "saturn": { "name": "saturn", "lon": 220.19045758323855, "lat": 2.369025473893533, "spd": 0.06601945841566703 }, "uranus": { "name": "uranus", "lon": 4.937306327392359, "lat": -0.6996854017985078, "spd": 0.0231501767000708 }, "neptune": { "name": "neptune", "lon": 331.32900754375686, "lat": -0.6087726290992674, "spd": 0.030494514646761672 }, "pluto": { "name": "pluto", "lon": 279.6409972038711, "lat": 3.314317863464566, "spd": 0.03572964089926245 }, "mean_node": { "name": "mean_node", "lon": 233.11906681960454, "lat": 0, "spd": -0.052907316216987965 }, "asc": { "name": "asc", "lon": 317.4095710373527 }, "mc": { "name": "mc", "lon": 242.7771714376574 } }, "asc": 317.4095710373527, "mc": 242.7771714376574 }, "s": "5435d00a296739678b6484bbd0bafc87", "costTime": 0 };
-// var nData = planetsLocations(data.data.asc, data.data.houses, data.data.planets);
-// console.log(nData);
+
+var drawAstroTxt = function(draw) {
+  var eclipticTxtArr = ['双鱼', '水瓶', '摩羯', '射手', '天蝎', '天秤', '处女', '狮子', '巨蟹', '双子', '金牛', '白羊'].reverse();
+  var txtEclipticText = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+  var planetNames = [
+    ['sun', '太阳', 'M'],
+    ['moon', '月亮', 'N'],
+    ['mercury', '水星', 'O'],
+    ['venus', '金星', 'P'],
+    ['mars', '火星', 'Q'],
+    ['jupiter', '木星', 'R'],
+    ['saturn', '土星', 'S'],
+    ['uranus', '天王星', 'T'],
+    ['neptune', '海王星', 'U'],
+    ['pluto', '冥王星', 'V']
+  ];
+  draw.clear();
+  var maxSize = 500;
+  var padding = 40;
+  var fontStyle = {
+    'size': 20,
+    'font-family': 'astro',
+    'color': 'red'
+  };
+  draw.size('100%', '100%').viewbox(0, 0, maxSize, maxSize / 3);
+  for (var i = 0; i < eclipticTxtArr.length; i++) {
+    draw.text(eclipticTxtArr[i]).cx(i * padding + 15).y(10);
+    draw.text(txtEclipticText[i]).font(fontStyle).fill(fontStyle.color).cx(i * padding + 15).y(30);
+  }
+  var yPo = 80;
+  for (var j = 0; j < planetNames.length; j++) {
+    var one = planetNames[j];
+    draw.text(one[0]).cx(j * (padding + 9) + 15).y(yPo);
+    draw.text(one[1]).cx(j * (padding + 9) + 15).y(yPo + 20);
+    draw.text(one[2]).font(fontStyle).fill(fontStyle.color).cx(j * (padding + 9) + 15).y(yPo + 40);
+  }
+};
+
 
 
 $(function() {
+
+  var drawTxt = SVG('astroTxt');
+
+  drawAstroTxt(drawTxt);
+
+
   $('#f_labeForm').submit(function() {
     if (!SVG.supported) {
       alert('SVG 不支持!请使用较新的浏览器,推荐谷歌浏览器.');
@@ -614,6 +656,8 @@ $(function() {
         $('#astrolabe').html('');
         var draw = SVG('astrolabe');
         astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc);
+        var nData = planetsLocations(re.data.asc, re.data.houses, re.data.planets);
+        console.log(nData);
         return false;
       } else {
         alert('生成星盘失败! - ' + re.re);
@@ -623,4 +667,3 @@ $(function() {
     return false;
   });
 });
-

@@ -103,7 +103,7 @@ exports.router = function() {
   });
   */
   router.get('*', function(req, resp, next) {
-    resp.status(404).send(error.json('404', '[#apiName]'));
+    resp.status(404).send(error.json('404', '404001'));
   });
   return router;
 };

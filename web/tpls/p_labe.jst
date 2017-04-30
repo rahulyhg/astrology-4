@@ -1,4 +1,4 @@
-{{#def.parts}} {{#def.header:{title:"Astro labe"} }}
+{{#def.parts}} {{#def.header:{title:"Astro labe",css:'<link href="css/select2.min.css" rel="stylesheet" />'} }}
 <!-- content -->
 <style type="text/css">
 @font-face {
@@ -42,6 +42,17 @@
                 <input type="text" style="width: 3em" name="birthSeconds" id="birthSecondsInput" value="0" />秒
               </div>
               <div>
+                <label for="countryInput">国家</label>
+                <select class="form-control" name="country" id="countryInput">
+                  <option value="China" selected="selected">中国</option>
+                </select>
+              </div>
+              <div>
+                <label for="cityInput">城市</label>
+                <select class="form-control" name="city" id="cityInput">
+                </select>
+              </div>
+              <div>
                 <label for="geoLonInput">经度</label>
                 <input type="text" class="form-control" name="geoLon" id="geoLonInput" value="111.88" />
               </div>
@@ -68,4 +79,4 @@
   </div>
 </div>
 <!-- / content -->
-{{#def.footer:{'scripts':'<script src="js/svg.min.js"></script> <script src="js/asLabe.src.js"></script>'} }}
+{{#def.footer:{'scripts':'<script src="js/svg.min.js"></script> <script src="js/asLabe.src.js"></script><script src="js/select2.min.js"></script><script src="js/location.src.js"></script>'} }}

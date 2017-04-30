@@ -76,10 +76,10 @@ var init = function() {
  */
 var cityFind = function(reqUrl, callback) {
   var query = url.parse(reqUrl, true).query;
-  if (!query || !query.k || !query.c) {
+  if (!query || !query.q || !query.c) {
     return callback(null, { 're': -1, 'data': 'nok' });
   }
-  var queryKey = query.c.toLowerCase() + ':' + query.k.toLowerCase();
+  var queryKey = query.c.toLowerCase() + ':' + query.q.toLowerCase();
   var cityObjArr = cityCache[queryKey];
   if (!cityObjArr) {
     return callback(null, { 're': -2, 'data': '' });
@@ -87,7 +87,7 @@ var cityFind = function(reqUrl, callback) {
   var outArr = [];
   for (var i = 0; i < cityObjArr.length; i++) {
     var province = cityObjArr[i].province || '';
-    var outObj = { 'city': cityObjArr[i].city, 'country': cityObjArr[i].country, 'province': province, 'lat': cityObjArr[i].lat, 'lon': cityObjArr[i].lon };
+    var outObj = { 'city': cityObjArr[i].city, 'country': cityObjArr[i].country, 'province': province, 'geo': cityObjArr[i].lon + ',' + cityObjArr[i].lat };
     outObj.showTxt = outObj.city + '/' + (province ? (province + '/') : '') + outObj.country;
     outArr.push(outObj);
   }
@@ -99,10 +99,10 @@ var cityFind = function(reqUrl, callback) {
  */
 var countryFind = function(reqUrl, callback) {
   var query = url.parse(reqUrl, true).query;
-  if (!query || !query.k) {
+  if (!query || !query.q) {
     return callback(null, { 're': -1, 'data': 'nok' });
   }
-  var queryKey = query.k.toLowerCase();
+  var queryKey = query.q.toLowerCase();
   var countryObjArr = countryCache[queryKey];
   if (!countryObjArr) {
     return callback(null, { 're': -2, 'data': '' });
@@ -150,7 +150,7 @@ exports.router = function() {
   });
 
   router.get('*', function(req, resp, next) {
-    resp.status(404).send(error.json('404', '[#apiName]'));
+    resp.status(404).send(error.json('404', '404001'));
   });
   return router;
 };

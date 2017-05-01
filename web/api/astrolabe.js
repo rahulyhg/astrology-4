@@ -11,18 +11,6 @@ var swisseph = require('swisseph-new');
 //标准API协议所用到的key,可根据情况从配置文件,数据库或其他位置获取,这里仅作为示例
 var apiKey = 'testKey';
 
-/**
- * 子接口方法,callback第二个参数即为resp返回的body
- * @param  {http.req}   req
- * @param  {http.resp}   resp
- * @param  {Function} callback 接口响应回调
- * @return {void}
- */
-var test = function(req, resp, callback) {
-  var re = { 'hello': '你好' };
-  callback(null, { 're': 0, 'data': re });
-};
-
 
 var toDegree = function(longitude) {
   var s = longitude;
@@ -64,7 +52,7 @@ var ephs = [
 ];
 
 
-var queryAdtroData = function(date,timeZone,geoLon,geoLat,splitHouses) {
+var queryAdtroData = function(date, timeZone, geoLon, geoLat, splitHouses) {
   // console.log('date:%j',date,timeZone);
   swisseph.swe_utc_time_zone(date.year, date.month, date.day, date.hour, date.minute, date.second, timeZone, function(re) {
     date = re;
@@ -74,7 +62,7 @@ var queryAdtroData = function(date,timeZone,geoLon,geoLat,splitHouses) {
   var julday_ut = 0;
 
 
-  swisseph.swe_utc_to_jd(date.year, date.month, date.day, date.hour, date.minute, date.second,swisseph.SE_GREG_CAL,function (re) {
+  swisseph.swe_utc_to_jd(date.year, date.month, date.day, date.hour, date.minute, date.second, swisseph.SE_GREG_CAL, function(re) {
     julday_ut = re.julianDayUT;
     // console.log('swe_utc_to_jd:%j',re);
   });
@@ -105,17 +93,17 @@ var queryAdtroData = function(date,timeZone,geoLon,geoLat,splitHouses) {
 
   swisseph.swe_houses(julday_ut, geoLat, geoLon, splitHouses, function(result) {
     if (result.error) {
-      vlog.eo(result.error,'swe_houses',julday_ut, geoLat, geoLon);
+      vlog.eo(result.error, 'swe_houses', julday_ut, geoLat, geoLon);
       return;
     }
     outAll['houses'] = result.house;
     planets['asc'] = {
-      'name':'asc',
-      'lon':result.ascendant
+      'name': 'asc',
+      'lon': result.ascendant
     };
     planets['mc'] = {
-      'name':'mc',
-      'lon':result.mc
+      'name': 'mc',
+      'lon': result.mc
     };
     // console.log('Houses for date:', result);
     // console.log('house degree:%j', toDegree(result.ascendant), toDegree(result.mc));
@@ -125,6 +113,202 @@ var queryAdtroData = function(date,timeZone,geoLon,geoLat,splitHouses) {
   });
   return outAll;
 };
+
+
+var checkOnePlanetLocation = function(lon, circleArr) {
+  var len = circleArr.length;
+  for (var i = 0; i < len; i++) {
+    var a = circleArr[i];
+    var b = circleArr[i + 1];
+    if (lon <= b && lon > a) {
+      return i;
+    }
+  }
+  if (circleArr[len - 1] > circleArr[0] || (lon > circleArr[len - 1] && lon <= circleArr[0])) {
+    return len - 1;
+  }
+  for (var j = 0; j < len; j++) {
+    if (circleArr[j] > circleArr[j + 1]) {
+      return j;
+    }
+  }
+  //circleArr数据有误或lon超过arr范围，返回-1
+  return -1;
+};
+
+
+var planetsCount = function(asc, houses, planets) {
+  var eclipticArr = [];
+  for (var i = 0; i < 12; i++) {
+    eclipticArr.push(i * 30);
+  }
+  var eclipticTxtArr = ['双鱼', '水瓶', '摩羯', '射手', '天蝎', '天秤', '处女', '狮子', '巨蟹', '双子', '金牛', '白羊'];
+  for (var j in planets) {
+    var lon = planets[j].lon;
+    var rLon = (360 - lon < 0) ? 360 - lon + 360 : 360 - lon;
+    // console.log('%s: rlon:%d', j, rLon);
+    var eclipticPo = checkOnePlanetLocation(rLon, eclipticArr);
+    planets[j].inSign = eclipticTxtArr[eclipticPo];
+    planets[j].inSignPo = eclipticPo;
+    // console.log('%s,%d,%d', j, lon, checkOnePlanetLocation(lon, houses));
+    planets[j].inHouse = checkOnePlanetLocation(lon, houses) + 1;
+  }
+  return planets;
+};
+
+
+
+/*
+four element, from planets in signs
+ */
+var elementCount = function(countedPlanets) {
+  var elementMap = {
+    '双鱼': 'water',
+    '水瓶': 'air',
+    '摩羯': 'earth',
+    '射手': 'fire',
+    '天蝎': 'water',
+    '天秤': 'air',
+    '处女': 'earth',
+    '狮子': 'fire',
+    '巨蟹': 'water',
+    '双子': 'air',
+    '金牛': 'earth',
+    '白羊': 'fire'
+  };
+  var valiPlanets = {
+    'sun': true,
+    'moon': true,
+    'mercury': true,
+    'venus': true,
+    'mars': true,
+    'jupiter': true,
+    'saturn': true,
+    'uranus': true,
+    'neptune': true,
+    'pluto': true,
+    'asc':true,
+    'mc':true
+  };
+  var out = {
+    'fire': 0,
+    'water': 0,
+    'earth': 0,
+    'air': 0
+  };
+  for (var i in countedPlanets) {
+    if (!valiPlanets[i]) {
+      continue;
+    }
+    var obj = countedPlanets[i];
+    out[elementMap[obj.inSign]]++;
+  }
+  return out;
+};
+
+
+var aspectCount = function(planetsData) {
+
+  var result = []; //[[aspectType,orb,applying]]
+  var sortFn = function(a, b) {
+    return a.angle - b.angle;
+  };
+  var isRetrograde = function(p) {
+    return p.speed < 0;
+  };
+  var samePair = {};
+
+  for (var aName in planetsData) {
+    var p1 = planetsData[aName];
+    for (var bName in planetsData) {
+      var p2 = planetsData[bName];
+      if (p1.name === p2.name) {
+        continue;
+      }
+      if (samePair[p1.name + '#' + p2.name]) {
+        //already done.
+        continue;
+      }
+      samePair[p2.name + '#' + p1.name] = true;
+      var aspectTypes = [
+        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },
+        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },
+        // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },
+        //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
+        { name: 'semisquare', major: false, angle: 45, orb: 2, symbol: '=' },
+        //// {name:'septile', major: false, angle: 51.417, orb: 2, symbol: 'V' },
+        { name: 'sextile', major: true, angle: 60, orb: 5, symbol: 'x' },
+        // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' },
+        //// {name:'bilin', major: false, angle: 75, orb: 0.9, symbol: '-' },
+        //// {name:'binovile', major: false, angle: 80, orb: 2, symbol: ';' },
+        { name: 'square', major: true, angle: 90, orb: 6, symbol: 'c' },
+        //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
+        //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
+        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' },
+        // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },
+        // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },
+        // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' },
+        //// {name:'treseptile', major: false, angle: 154.284, orb: 1.1, symbol: 'B' },
+        //// {name:'tetranovile', major: false, angle: 160, orb: 3, symbol: ':' },
+        //// {name:'tao', major: false, angle: 165, orb: 1.5, symbol: '—' },
+        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' }
+      ];
+      var l1 = p1.lon,
+        l2 = p2.lon,
+        r1 = isRetrograde(p1),
+        r2 = isRetrograde(p2),
+        s1 = Math.abs(p1.spd),
+        s2 = Math.abs(p2.spd);
+      var ct = false;
+      var distAngle = Math.abs(p1.lon - p2.lon);
+      if (distAngle > 180 + aspectTypes[aspectTypes.length - 1].orb) {
+        distAngle = l1 > l2 ? (360 - l1 + l2) : (360 - l2 + l1);
+        ct = true;
+      }
+      //applying or separating
+      var applying = 0;
+      if (p2.spd && p1.spd) {
+        if ((distAngle < 0 && !ct && l2 > l1 || distAngle > 0 && !ct && l1 > l2 || distAngle < 0 && ct && l1 > l2 || distAngle > 0 && ct && l2 > l1) && (!r1 && !r2 && s2 > s1 || r1 && r2 && s1 > s2 || r1 && !r2) || (distAngle > 0 && !ct && l2 > l1 || distAngle < 0 && !ct && l1 > l2 || distAngle > 0 && ct && l1 > l2 || distAngle < 0 && ct && l2 > l1) && (!r1 && !r2 && s1 > s2 || r1 && r2 && s2 > s1 || !r1 && r2)) {
+          applying = 1;
+        } else {
+          applying = -1;
+        }
+      }
+
+      var compareObj = {
+        'name': 'target',
+        'angle': distAngle
+      };
+      aspectTypes.push(compareObj);
+      aspectTypes.sort(sortFn);
+      // console.log(aspectTypes);
+      for (var i = 0; i < aspectTypes.length; i++) {
+        var cur = aspectTypes[i];
+        if (cur.name === 'target') {
+          var pre = aspectTypes[i - 1];
+          var next = aspectTypes[i + 1];
+          if (pre.angle + pre.orb > cur.angle) {
+            //match pre
+            result.push([pre.name, p1.name, p2.name, cur.angle - pre.angle, applying]);
+            break;
+          }
+          if (next.angle - next.orb < cur.angle) {
+            //match next
+            result.push([next.name, p1.name, p2.name, next.angle - cur.angle, applying]);
+            break;
+          }
+          // console.log('--- not match:%j',[p1.name,p2.name]);
+          break;
+        }
+      }
+    }
+  }
+  // console.log('aspect result:------->', result.length);
+  return result;
+};
+
+
+
 
 /**
  * query astrolabe json data
@@ -152,7 +336,12 @@ var query = function(req, resp, callback) {
   var geoLat = parseInt(reqData.geoLat);
   var date = { year: parseInt(reqData.birthYear), month: parseInt(reqData.birtMonth), day: parseInt(reqData.birthDate), hour: parseInt(reqData.birthHours), minute: parseInt(reqData.birthMinutes), second: parseInt(reqData.birthSeconds) };
 
-  var outAll = queryAdtroData(date,timeZone,geoLon,geoLat,splitHouses);
+  var outAll = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
+
+  var countedPlanets = planetsCount(outAll.asc, outAll.houses, outAll.planets);
+  outAll.planets = countedPlanets;
+  outAll.elements = elementCount(countedPlanets);
+  outAll.aspects = aspectCount(outAll.planets);
   // console.log('outAll:%j',outAll);
   /*
    * iApi.makeApiResp:创建resp的内容
@@ -173,39 +362,20 @@ var iiConfig = {
   // 'validatorFailStateCode':403, //[validatorFailStateCode]:当validator验证失败时返回的http状态码,默认为200,此处可以进行全局修改
   // 'type': 'application/json', //[type]:http请求头的type,可选,默认'application/json'
   'act': {
-    //接口1,地址如:http://localhost:16000/astrolabe/testAct
-    'test': {
-      /*
-      'showLevel': 0, //[showLevel]:如果需要验证,此处为用户最可访问的最低level,可选,默认0
-      'validator': { //[validator]:参数校验器,可选
-        'phone': 'mobileCN', //手机号参数验证示例,详细校验参数可参见cck项目
-        'age': ['intRang', [10, 100]], //数字范围验证示例
-        '@state': ['intRang', [0, 99]], //带@符号开头的参数表示此字段可以不存在,如存在则按此条件校验
-        'txt': function(inputVal) { //自定义校验方法,return true为通过
-          if (inputVal === 'hello') {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      },
-      */
-      'resp': test //接口实现方法,必须有
-    },
     //另一个接口,地址如:http://localhost:16000/astrolabe/query
     'query': {
-      'validator':{
-        '@userName':'string',
-        'birthYear':'strInt',
-        'birtMonth':'strInt',
-        'birthDate':'strInt',
-        'birthHours':'strInt',
-        'birthMinutes':'strInt',
-        'birthSeconds':'strInt',
-        'geoLon':'string',
-        'geoLat':'string',
-        '@splitHouses':['strLen',[0,1]],
-        '@timeZone':['strIntRange', [0, 30]]
+      'validator': {
+        '@userName': 'string',
+        'birthYear': 'strInt',
+        'birtMonth': 'strInt',
+        'birthDate': 'strInt',
+        'birthHours': 'strInt',
+        'birthMinutes': 'strInt',
+        'birthSeconds': 'strInt',
+        'geoLon': 'string',
+        'geoLat': 'string',
+        '@splitHouses': ['strLen', [0, 1]],
+        '@timeZone': ['strIntRange', [0, 30]]
       },
       'resp': query
     }

@@ -150,110 +150,7 @@ var adjustCircleHitObj = function(obj1, obj2, centerX, centerY) {
   return true;
 };
 
-
-var aspectCount = function(planetsData) {
-
-  var result = []; //[[aspectType,orb,applying]]
-  var sortFn = function(a, b) {
-    return a.angle - b.angle;
-  };
-  var isRetrograde = function(p) {
-    return p.speed < 0;
-  };
-  var samePair = {};
-
-  for (var aName in planetsData) {
-    var p1 = planetsData[aName];
-    for (var bName in planetsData) {
-      var p2 = planetsData[bName];
-      if (p1.name === p2.name) {
-        continue;
-      }
-      if (samePair[p1.name + '#' + p2.name]) {
-        //already done.
-        continue;
-      }
-      samePair[p2.name + '#' + p1.name] = true;
-      var aspectTypes = [
-        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },
-        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },
-        // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },
-        //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
-        { name: 'semisquare', major: false, angle: 45, orb: 2, symbol: '=' },
-        //// {name:'septile', major: false, angle: 51.417, orb: 2, symbol: 'V' },
-        { name: 'sextile', major: true, angle: 60, orb: 5, symbol: 'x' },
-        // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' },
-        //// {name:'bilin', major: false, angle: 75, orb: 0.9, symbol: '-' },
-        //// {name:'binovile', major: false, angle: 80, orb: 2, symbol: ';' },
-        { name: 'square', major: true, angle: 90, orb: 6, symbol: 'c' },
-        //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
-        //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
-        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' },
-        // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },
-        // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },
-        // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' },
-        //// {name:'treseptile', major: false, angle: 154.284, orb: 1.1, symbol: 'B' },
-        //// {name:'tetranovile', major: false, angle: 160, orb: 3, symbol: ':' },
-        //// {name:'tao', major: false, angle: 165, orb: 1.5, symbol: '—' },
-        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' }
-      ];
-      var l1 = p1.lon,
-        l2 = p2.lon,
-        r1 = isRetrograde(p1),
-        r2 = isRetrograde(p2),
-        s1 = Math.abs(p1.spd),
-        s2 = Math.abs(p2.spd);
-      var ct = false;
-      var distAngle = Math.abs(p1.lon - p2.lon);
-      if (distAngle > 180 + aspectTypes[aspectTypes.length - 1].orb) {
-        distAngle = l1 > l2 ? (360 - l1 + l2) : (360 - l2 + l1);
-        ct = true;
-      }
-      //applying or separating
-      var applying = 0;
-      if (p2.spd && p1.spd) {
-        if ((distAngle < 0 && !ct && l2 > l1 || distAngle > 0 && !ct && l1 > l2 || distAngle < 0 && ct && l1 > l2 || distAngle > 0 && ct && l2 > l1) && (!r1 && !r2 && s2 > s1 || r1 && r2 && s1 > s2 || r1 && !r2) || (distAngle > 0 && !ct && l2 > l1 || distAngle < 0 && !ct && l1 > l2 || distAngle > 0 && ct && l1 > l2 || distAngle < 0 && ct && l2 > l1) && (!r1 && !r2 && s1 > s2 || r1 && r2 && s2 > s1 || !r1 && r2)) {
-          applying = 1;
-        } else {
-          applying = -1;
-        }
-      }
-
-      var compareObj = {
-        'name': 'target',
-        'angle': distAngle
-      };
-      aspectTypes.push(compareObj);
-      aspectTypes.sort(sortFn);
-      // console.log(aspectTypes);
-      for (var i = 0; i < aspectTypes.length; i++) {
-        var cur = aspectTypes[i];
-        if (cur.name === 'target') {
-          var pre = aspectTypes[i - 1];
-          var next = aspectTypes[i + 1];
-          if (pre.angle + pre.orb > cur.angle) {
-            //match pre
-            result.push([pre.name, p1.name, p2.name, cur.angle - pre.angle, applying]);
-            break;
-          }
-          if (next.angle - next.orb < cur.angle) {
-            //match next
-            result.push([next.name, p1.name, p2.name, next.angle - cur.angle, applying]);
-            break;
-          }
-          // console.log('--- not match:%j',[p1.name,p2.name]);
-          break;
-        }
-      }
-    }
-  }
-  console.log('aspect result:------->', result.length);
-  // console.log(result);
-  return result;
-};
-
-
-function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc) {
+function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr) {
   draw.clear();
   var maxSize = 500;
   var circleDiameter = 480;
@@ -403,8 +300,8 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc) {
     };
     var txts1 = ['M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'f', 'g'];
     var txts = [];
-    for (var i = 0; i < showPlanets.length; i++) {
-      txts.push([txts1[i], planetsData[showPlanets[i]].lon]);
+    for (var n = 0; n < showPlanets.length; n++) {
+      txts.push([txts1[n], planetsData[showPlanets[n]].lon]);
     }
     // txts.push(['f', asc]); //add ASC dot
     var pTxtArr = txtCircle(draw, 'txtPlanet', centerX, centerY, txts, fontStyle, centerX - 80, asc);
@@ -446,9 +343,9 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc) {
     }
     // 连接点与图
     var linkerArr = [];
-    for (var i = 0; i < pDotArr.length; i++) {
-      var bbox1 = pDotArr[i].bbox();
-      var bbox2 = pTxtArr[i].bbox();
+    for (var l = 0; l < pDotArr.length; l++) {
+      var bbox1 = pDotArr[l].bbox();
+      var bbox2 = pTxtArr[l].bbox();
       var cx1 = bbox1.cx;
       var cy1 = bbox1.cy;
       var cx2 = bbox2.cx;
@@ -462,7 +359,7 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc) {
   };
 
   var aspectCreate = function(planetDotMap) {
-    var aspectArr = aspectCount(planetsData);
+    // var aspectArr = aspectCount(planetsData);
     var aspectGroup = draw.group();
     var lineStyleArr = [
       strokeStyleOuter, strokeStyleInner, strokeStyleInner2
@@ -543,47 +440,6 @@ var planetNames = [
   // 'nessus'
 ];
 
-var checkOneLocation = function(lon, circleArr) {
-  var len = circleArr.length;
-  for (var i = 0; i < len; i++) {
-    var a = circleArr[i];
-    var b = circleArr[i + 1];
-    if (lon <= b && lon > a) {
-      return i;
-    }
-  }
-  if (circleArr[len - 1] > circleArr[0] || (lon > circleArr[len - 1] && lon <= circleArr[0])) {
-    return len - 1;
-  }
-  for (var j = 0; j < len; j++) {
-    if (circleArr[j] > circleArr[j + 1]) {
-      return j;
-    }
-  }
-  //circleArr数据有误或lon超过arr范围，返回-1
-  return -1;
-};
-
-
-var planetsLocations = function(asc, houses, planets) {
-  var eclipticArr = [];
-  for (var i = 0; i < 12; i++) {
-    eclipticArr.push(i * 30);
-  }
-  var eclipticTxtArr = ['双鱼', '水瓶', '摩羯', '射手', '天蝎', '天秤', '处女', '狮子', '巨蟹', '双子', '金牛', '白羊'];
-  for (var j in planets) {
-    var lon = planets[j].lon;
-    var rLon = (360 - lon < 0) ? 360 - lon + 360 : 360 - lon;
-    // console.log('%s: rlon:%d', j, rLon);
-    var eclipticPo = checkOneLocation(rLon, eclipticArr);
-    planets[j].inEclipticTxt = eclipticTxtArr[eclipticPo];
-    planets[j].inEcliptic = eclipticPo;
-    // console.log('%s,%d,%d', j, lon, checkOneLocation(lon, houses));
-    planets[j].inHouses = checkOneLocation(lon, houses) + 1;
-  }
-  return planets;
-};
-
 
 
 var drawAstroTxt = function(draw) {
@@ -655,9 +511,9 @@ $(function() {
       if (re.re === 0) {
         $('#astrolabe').html('');
         var draw = SVG('astrolabe');
-        astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc);
-        var nData = planetsLocations(re.data.asc, re.data.houses, re.data.planets);
-        console.log(nData);
+        astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc, re.data.aspects);
+        // var nData = planetsLocations(re.data.asc, re.data.houses, re.data.planets);
+        // console.log(nData);
         return false;
       } else {
         alert('生成星盘失败! - ' + re.re);

@@ -12,10 +12,11 @@ var swisseph = require('swisseph-new');
 var apiKey = 'testKey';
 
 
-var toDegree = function(longitude) {
-  var s = longitude;
+var toDegree = function(s) {
+  var pre = '';
   if (s < 0.0) {
     s = -s;
+    pre = '-';
   }
   var d = Math.floor(s);
   s -= d;
@@ -23,7 +24,7 @@ var toDegree = function(longitude) {
   var m = Math.floor(s);
   s -= m;
   s *= 60;
-  return d + '°' + m + '\'' + Math.floor(s);
+  return pre + d + '°' + m + '\'' + Math.floor(s);
 };
 
 var ephs = [
@@ -136,7 +137,13 @@ var checkOnePlanetLocation = function(lon, circleArr) {
   return -1;
 };
 
-
+/**
+ * planets in sign, house, etc.
+ * @param  {float} asc
+ * @param  {array} houses
+ * @param  {object} planets
+ * @return {object} planets
+ */
 var planetsCount = function(asc, houses, planets) {
   var eclipticArr = [];
   for (var i = 0; i < 12; i++) {
@@ -158,38 +165,38 @@ var planetsCount = function(asc, houses, planets) {
 
 
 
+var elementMap = {
+  '双鱼': 'water',
+  '水瓶': 'air',
+  '摩羯': 'earth',
+  '射手': 'fire',
+  '天蝎': 'water',
+  '天秤': 'air',
+  '处女': 'earth',
+  '狮子': 'fire',
+  '巨蟹': 'water',
+  '双子': 'air',
+  '金牛': 'earth',
+  '白羊': 'fire'
+};
+var eleValiPlanets = {
+  'sun': true,
+  'moon': true,
+  'mercury': true,
+  'venus': true,
+  'mars': true,
+  'jupiter': true,
+  'saturn': true,
+  'uranus': true,
+  'neptune': true,
+  'pluto': true,
+  'asc': true,
+  'mc': true
+};
 /*
 four element, from planets in signs
  */
 var elementCount = function(countedPlanets) {
-  var elementMap = {
-    '双鱼': 'water',
-    '水瓶': 'air',
-    '摩羯': 'earth',
-    '射手': 'fire',
-    '天蝎': 'water',
-    '天秤': 'air',
-    '处女': 'earth',
-    '狮子': 'fire',
-    '巨蟹': 'water',
-    '双子': 'air',
-    '金牛': 'earth',
-    '白羊': 'fire'
-  };
-  var valiPlanets = {
-    'sun': true,
-    'moon': true,
-    'mercury': true,
-    'venus': true,
-    'mars': true,
-    'jupiter': true,
-    'saturn': true,
-    'uranus': true,
-    'neptune': true,
-    'pluto': true,
-    'asc':true,
-    'mc':true
-  };
   var out = {
     'fire': 0,
     'water': 0,
@@ -197,7 +204,7 @@ var elementCount = function(countedPlanets) {
     'air': 0
   };
   for (var i in countedPlanets) {
-    if (!valiPlanets[i]) {
+    if (!eleValiPlanets[i]) {
       continue;
     }
     var obj = countedPlanets[i];

@@ -119,7 +119,48 @@ var queryAdtroData = function(date, timeZone, geoLon, geoLat, splitHouses) {
   return outAll;
 };
 
-
+var inSignPlusMap = {
+  'moon:cancer': 'rulership',
+  'mars:cancer': 'full',
+  'jupiter:cancer': 'exaltation',
+  'saturn:cancer': 'detriment',
+  'sun:aries': 'exaltation',
+  'venus:aries': 'detriment',
+  'mars:aries': 'rulership',
+  'saturn:aries': 'full',
+  'mercury:sagittarius': 'detriment',
+  'jupiter:sagittarius': 'rulership',
+  'jupiter:gemini': 'detriment',
+  'moon:taurus': 'exaltation',
+  'venus:taurus': 'rulership',
+  'mars:taurus': 'detriment',
+  'uranus:taurus': 'full',
+  'pluto:taurus': 'detriment',
+  'mercury:pisces': 'detriment',
+  'venus:pisces': 'exaltation',
+  'neptune:pisces': 'rulership',
+  'moon:capricorn': 'detriment',
+  'mars:capricorn': 'exaltation',
+  'jupiter:capricorn': 'full',
+  'saturn:capricorn': 'rulership',
+  'sun:aquarius': 'detriment',
+  'mercury:aquarius': 'exaltation',
+  'uranus:aquarius': 'rulership',
+  'sun:leo': 'rulership',
+  'mercury:leo': 'full',
+  'uranus:leo': 'detriment',
+  'mercury:virgo': 'rulership',
+  'venus:virgo': 'full',
+  'neptune:virgo': 'detriment',
+  'sun:libra': 'full',
+  'venus:libra': 'rulership',
+  'mars:libra': 'detriment',
+  'saturn:libra': 'exaltation',
+  'moon:scorpio': 'full',
+  'mars:scorpio': 'rulership',
+  'uranus:scorpio': 'exaltation',
+  'pluto:scorpio': 'rulership'
+};
 var checkOnePlanetLocation = function(lon, circleArr) {
   var len = circleArr.length;
   for (var i = 0; i < len; i++) {
@@ -145,16 +186,22 @@ var planetsCount = function(asc, houses, planets) {
     eclipticArr.push(i * 30);
   }
   var eclipticTxtArr = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
-
+  var eclipticEnTxtArr = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
   for (var j in planets) {
     var lon = planets[j].lon;
     var eclipticPo = checkOnePlanetLocation(lon, eclipticArr);
     planets[j].inSign = eclipticTxtArr[eclipticPo];
+    planets[j].inSignEn = eclipticEnTxtArr[eclipticPo];
     planets[j].inSignPo = eclipticPo;
     planets[j].inSignAngle = toDegree(lon - eclipticArr[eclipticPo]);
     var housePo = checkOnePlanetLocation(lon, houses);
     planets[j].inHouse = housePo + 1;
     planets[j].inHouseAngle = toDegree(lon - houses[housePo]);
+
+    var plus = inSignPlusMap[planets[j].name + ':' + eclipticEnTxtArr[eclipticPo]];
+    if (plus) {
+      planets[j].signPlus = plus;
+    }
   }
   return planets;
 };

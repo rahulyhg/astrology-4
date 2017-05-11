@@ -13,6 +13,9 @@ var apiKey = 'testKey';
 
 
 var toDegree = function(s) {
+  if (s === undefined || s === null) {
+    return '';
+  }
   var pre = '';
   if (s < 0.0) {
     s = -s;
@@ -26,6 +29,7 @@ var toDegree = function(s) {
   s *= 60;
   return pre + d + '°' + m + '\'' + Math.floor(s);
 };
+
 
 var ephs = [
   'SE_SUN',
@@ -65,15 +69,15 @@ var queryAdtroData = function(date, timeZone, geoLon, geoLat, splitHouses) {
 
   swisseph.swe_utc_to_jd(date.year, date.month, date.day, date.hour, date.minute, date.second, swisseph.SE_GREG_CAL, function(re) {
     julday_ut = re.julianDayUT;
-    // console.log('swe_utc_to_jd:%j',re);
+    // console.log('swe_utc_to_jd:%j',julday_ut);
   });
   // swisseph.swe_julday(date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL, function(re) {
   //   julday_ut = re;
   //   console.log('Julian UT day for date:', julday_ut);
   // });
-  var flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH | swisseph.SEFLG_TOPOCTR;
-  swisseph.swe_set_topo(0, 0, 0);
-
+  // var flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_TOPOCTR;
+  // swisseph.swe_set_topo(0, 0, 0);
+  var flag = swisseph.SEFLG_SPEED;
   var outAll = {};
   var planets = {};
   for (var i = 0; i < ephs.length; i++) {
@@ -121,20 +125,11 @@ var checkOnePlanetLocation = function(lon, circleArr) {
   for (var i = 0; i < len; i++) {
     var a = circleArr[i];
     var b = circleArr[i + 1];
-    if (lon <= b && lon > a) {
+    if (lon >= a && lon < b) {
       return i;
     }
   }
-  if (circleArr[len - 1] > circleArr[0] || (lon > circleArr[len - 1] && lon <= circleArr[0])) {
-    return len - 1;
-  }
-  for (var j = 0; j < len; j++) {
-    if (circleArr[j] > circleArr[j + 1]) {
-      return j;
-    }
-  }
-  //circleArr数据有误或lon超过arr范围，返回-1
-  return -1;
+  return len - 1;
 };
 
 /**
@@ -149,16 +144,17 @@ var planetsCount = function(asc, houses, planets) {
   for (var i = 0; i < 12; i++) {
     eclipticArr.push(i * 30);
   }
-  var eclipticTxtArr = ['双鱼', '水瓶', '摩羯', '射手', '天蝎', '天秤', '处女', '狮子', '巨蟹', '双子', '金牛', '白羊'];
+  var eclipticTxtArr = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
+
   for (var j in planets) {
     var lon = planets[j].lon;
-    var rLon = (360 - lon < 0) ? 360 - lon + 360 : 360 - lon;
-    // console.log('%s: rlon:%d', j, rLon);
-    var eclipticPo = checkOnePlanetLocation(rLon, eclipticArr);
+    var eclipticPo = checkOnePlanetLocation(lon, eclipticArr);
     planets[j].inSign = eclipticTxtArr[eclipticPo];
     planets[j].inSignPo = eclipticPo;
-    // console.log('%s,%d,%d', j, lon, checkOnePlanetLocation(lon, houses));
-    planets[j].inHouse = checkOnePlanetLocation(lon, houses) + 1;
+    planets[j].inSignAngle = toDegree(lon - eclipticArr[eclipticPo]);
+    var housePo = checkOnePlanetLocation(lon, houses);
+    planets[j].inHouse = housePo + 1;
+    planets[j].inHouseAngle = toDegree(lon - houses[housePo]);
   }
   return planets;
 };
@@ -238,8 +234,8 @@ var aspectCount = function(planetsData) {
       }
       samePair[p2.name + '#' + p1.name] = true;
       var aspectTypes = [
-        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },
-        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },
+        { name: 'conjunct', major: true, angle: 0, orb: 7, symbol: '<' },
+        { name: 'semisextile', major: false, angle: 30, orb: 1, symbol: 'y' },
         // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },
         //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
         { name: 'semisquare', major: false, angle: 45, orb: 2, symbol: '=' },
@@ -251,14 +247,14 @@ var aspectCount = function(planetsData) {
         { name: 'square', major: true, angle: 90, orb: 6, symbol: 'c' },
         //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
         //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
-        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' },
+        { name: 'trine', major: true, angle: 120, orb: 6, symbol: 'Q' },
         // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },
         // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },
         // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' },
         //// {name:'treseptile', major: false, angle: 154.284, orb: 1.1, symbol: 'B' },
         //// {name:'tetranovile', major: false, angle: 160, orb: 3, symbol: ':' },
         //// {name:'tao', major: false, angle: 165, orb: 1.5, symbol: '—' },
-        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' }
+        { name: 'opposition', major: true, angle: 180, orb: 6, symbol: 'm' }
       ];
       var l1 = p1.lon,
         l2 = p2.lon,
@@ -315,7 +311,13 @@ var aspectCount = function(planetsData) {
 };
 
 
-
+var countAstroData = function(astroDatas) {
+  var countedPlanets = planetsCount(astroDatas.asc, astroDatas.houses, astroDatas.planets);
+  astroDatas.planets = countedPlanets;
+  astroDatas.elements = elementCount(countedPlanets);
+  astroDatas.aspects = aspectCount(astroDatas.planets);
+  return astroDatas;
+};
 
 /**
  * query astrolabe json data
@@ -339,17 +341,19 @@ var query = function(req, resp, callback) {
   var reqData = reqDataArr[1];
   var timeZone = parseInt(reqData.timeZone) || 8;
   var splitHouses = reqData.splitHouses || 'P';
-  var geoLon = parseInt(reqData.geoLon);
-  var geoLat = parseInt(reqData.geoLat);
+  var geoLon = parseFloat(reqData.geoLon);
+  var geoLat = parseFloat(reqData.geoLat);
   var date = { year: parseInt(reqData.birthYear), month: parseInt(reqData.birtMonth), day: parseInt(reqData.birthDate), hour: parseInt(reqData.birthHours), minute: parseInt(reqData.birthMinutes), second: parseInt(reqData.birthSeconds) };
-
+  // console.log(date, timeZone, geoLon, geoLat, splitHouses);
   var outAll = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
 
-  var countedPlanets = planetsCount(outAll.asc, outAll.houses, outAll.planets);
-  outAll.planets = countedPlanets;
-  outAll.elements = elementCount(countedPlanets);
-  outAll.aspects = aspectCount(outAll.planets);
-  // console.log('outAll:%j',outAll);
+  // var countedPlanets = planetsCount(outAll.asc, outAll.houses, outAll.planets);
+  // outAll.planets = countedPlanets;
+  // outAll.elements = elementCount(countedPlanets);
+  // outAll.aspects = aspectCount(outAll.planets);
+
+  outAll = countAstroData(outAll);
+  // console.log(outAll);
   /*
    * iApi.makeApiResp:创建resp的内容
    * @param  {int} errorCode      0为成功,其他为错误码
@@ -389,8 +393,6 @@ var iiConfig = {
   }
 };
 
-
-
 exports.router = function() {
 
   //由以上配置生成router
@@ -407,6 +409,14 @@ exports.router = function() {
   });
   return router;
 };
+
+
+
+exports.queryAdtroData = queryAdtroData;
+exports.countAstroData = countAstroData;
+exports.toDegree = toDegree;
+
+
 // var date = { year: 1981, month: 2, day: 6, hour: 1, minute: 0, second: 0 };
 // var re = queryAdtroData(date,8,23.33,55.23,'P');
 // console.log(re);

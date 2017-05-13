@@ -11,6 +11,51 @@ var swisseph = require('swisseph-new');
 //标准API协议所用到的key,可根据情况从配置文件,数据库或其他位置获取,这里仅作为示例
 var apiKey = 'testKey';
 
+var inSignPlusMap = {
+  'moon:cancer': 'rulership',
+  'mars:cancer': 'full',
+  'jupiter:cancer': 'exaltation',
+  'saturn:cancer': 'detriment',
+  'sun:aries': 'exaltation',
+  'venus:aries': 'detriment',
+  'mars:aries': 'rulership',
+  'saturn:aries': 'full',
+  'mercury:sagittarius': 'detriment',
+  'jupiter:sagittarius': 'rulership',
+  'jupiter:gemini': 'detriment',
+  'moon:taurus': 'exaltation',
+  'venus:taurus': 'rulership',
+  'mars:taurus': 'detriment',
+  'uranus:taurus': 'full',
+  'pluto:taurus': 'detriment',
+  'mercury:pisces': 'detriment',
+  'venus:pisces': 'exaltation',
+  'neptune:pisces': 'rulership',
+  'moon:capricorn': 'detriment',
+  'mars:capricorn': 'exaltation',
+  'jupiter:capricorn': 'full',
+  'saturn:capricorn': 'rulership',
+  'sun:aquarius': 'detriment',
+  'mercury:aquarius': 'exaltation',
+  'uranus:aquarius': 'rulership',
+  'sun:leo': 'rulership',
+  'mercury:leo': 'full',
+  'uranus:leo': 'detriment',
+  'mercury:virgo': 'rulership',
+  'venus:virgo': 'full',
+  'neptune:virgo': 'detriment',
+  'sun:libra': 'full',
+  'venus:libra': 'rulership',
+  'mars:libra': 'detriment',
+  'saturn:libra': 'exaltation',
+  'moon:scorpio': 'full',
+  'mars:scorpio': 'rulership',
+  'uranus:scorpio': 'exaltation',
+  'pluto:scorpio': 'rulership'
+};
+var signTxtArr = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
+var signEnTxtArr = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
+
 
 var toDegree = function(s) {
   if (s === undefined || s === null) {
@@ -119,48 +164,6 @@ var queryAdtroData = function(date, timeZone, geoLon, geoLat, splitHouses) {
   return outAll;
 };
 
-var inSignPlusMap = {
-  'moon:cancer': 'rulership',
-  'mars:cancer': 'full',
-  'jupiter:cancer': 'exaltation',
-  'saturn:cancer': 'detriment',
-  'sun:aries': 'exaltation',
-  'venus:aries': 'detriment',
-  'mars:aries': 'rulership',
-  'saturn:aries': 'full',
-  'mercury:sagittarius': 'detriment',
-  'jupiter:sagittarius': 'rulership',
-  'jupiter:gemini': 'detriment',
-  'moon:taurus': 'exaltation',
-  'venus:taurus': 'rulership',
-  'mars:taurus': 'detriment',
-  'uranus:taurus': 'full',
-  'pluto:taurus': 'detriment',
-  'mercury:pisces': 'detriment',
-  'venus:pisces': 'exaltation',
-  'neptune:pisces': 'rulership',
-  'moon:capricorn': 'detriment',
-  'mars:capricorn': 'exaltation',
-  'jupiter:capricorn': 'full',
-  'saturn:capricorn': 'rulership',
-  'sun:aquarius': 'detriment',
-  'mercury:aquarius': 'exaltation',
-  'uranus:aquarius': 'rulership',
-  'sun:leo': 'rulership',
-  'mercury:leo': 'full',
-  'uranus:leo': 'detriment',
-  'mercury:virgo': 'rulership',
-  'venus:virgo': 'full',
-  'neptune:virgo': 'detriment',
-  'sun:libra': 'full',
-  'venus:libra': 'rulership',
-  'mars:libra': 'detriment',
-  'saturn:libra': 'exaltation',
-  'moon:scorpio': 'full',
-  'mars:scorpio': 'rulership',
-  'uranus:scorpio': 'exaltation',
-  'pluto:scorpio': 'rulership'
-};
 var checkOnePlanetLocation = function(lon, circleArr) {
   var len = circleArr.length;
   for (var i = 0; i < len; i++) {
@@ -175,30 +178,28 @@ var checkOnePlanetLocation = function(lon, circleArr) {
 
 /**
  * planets in sign, house, etc.
- * @param  {float} asc
  * @param  {array} houses
  * @param  {object} planets
+ * @param  {float} ascDiff asc偏移,用于计算合盘
  * @return {object} planets
  */
-var planetsCount = function(asc, houses, planets) {
+var planetsCount = function(houses, planets) {
   var eclipticArr = [];
   for (var i = 0; i < 12; i++) {
     eclipticArr.push(i * 30);
   }
-  var eclipticTxtArr = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
-  var eclipticEnTxtArr = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
   for (var j in planets) {
     var lon = planets[j].lon;
     var eclipticPo = checkOnePlanetLocation(lon, eclipticArr);
-    planets[j].inSign = eclipticTxtArr[eclipticPo];
-    planets[j].inSignEn = eclipticEnTxtArr[eclipticPo];
+    planets[j].inSign = signTxtArr[eclipticPo];
+    planets[j].inSignEn = signEnTxtArr[eclipticPo];
     planets[j].inSignPo = eclipticPo;
     planets[j].inSignAngle = toDegree(lon - eclipticArr[eclipticPo]);
     var housePo = checkOnePlanetLocation(lon, houses);
     planets[j].inHouse = housePo + 1;
     planets[j].inHouseAngle = toDegree(lon - houses[housePo]);
 
-    var plus = inSignPlusMap[planets[j].name + ':' + eclipticEnTxtArr[eclipticPo]];
+    var plus = inSignPlusMap[planets[j].name + ':' + signEnTxtArr[eclipticPo]];
     if (plus) {
       planets[j].signPlus = plus;
     }
@@ -257,7 +258,7 @@ var elementCount = function(countedPlanets) {
 };
 
 
-var aspectCount = function(planetsData) {
+var aspectCount = function(planetsData, planetsDataB) {
 
   var result = []; //[[aspectType,orb,applying]]
   var sortFn = function(a, b) {
@@ -268,9 +269,11 @@ var aspectCount = function(planetsData) {
   };
   var samePair = {};
 
+  planetsDataB = planetsDataB || planetsData;
+
   for (var aName in planetsData) {
     var p1 = planetsData[aName];
-    for (var bName in planetsData) {
+    for (var bName in planetsDataB) {
       var p2 = planetsData[bName];
       if (p1.name === p2.name) {
         continue;
@@ -359,7 +362,7 @@ var aspectCount = function(planetsData) {
 
 
 var countAstroData = function(astroDatas) {
-  var countedPlanets = planetsCount(astroDatas.asc, astroDatas.houses, astroDatas.planets);
+  var countedPlanets = planetsCount(astroDatas.houses, astroDatas.planets);
   astroDatas.planets = countedPlanets;
   astroDatas.elements = elementCount(countedPlanets);
   astroDatas.aspects = aspectCount(astroDatas.planets);
@@ -394,7 +397,7 @@ var query = function(req, resp, callback) {
   // console.log(date, timeZone, geoLon, geoLat, splitHouses);
   var outAll = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
 
-  // var countedPlanets = planetsCount(outAll.asc, outAll.houses, outAll.planets);
+  // var countedPlanets = planetsCount(outAll.houses, outAll.planets);
   // outAll.planets = countedPlanets;
   // outAll.elements = elementCount(countedPlanets);
   // outAll.aspects = aspectCount(outAll.planets);
@@ -461,6 +464,8 @@ exports.router = function() {
 
 exports.queryAdtroData = queryAdtroData;
 exports.countAstroData = countAstroData;
+exports.checkOnePlanetLocation = checkOnePlanetLocation;
+exports.aspectCount = aspectCount;
 exports.toDegree = toDegree;
 
 

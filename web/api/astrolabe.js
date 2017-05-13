@@ -56,26 +56,6 @@ var inSignPlusMap = {
 var signTxtArr = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
 var signEnTxtArr = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
 
-
-var toDegree = function(s) {
-  if (s === undefined || s === null) {
-    return '';
-  }
-  var pre = '';
-  if (s < 0.0) {
-    s = -s;
-    pre = '-';
-  }
-  var d = Math.floor(s);
-  s -= d;
-  s *= 60;
-  var m = Math.floor(s);
-  s -= m;
-  s *= 60;
-  return pre + d + '°' + m + '\'' + Math.floor(s);
-};
-
-
 var ephs = [
   'SE_SUN',
   'SE_MOON',
@@ -100,6 +80,55 @@ var ephs = [
   // swisseph.SE_AST_OFFSET + 136199, // eris
   // swisseph.SE_AST_OFFSET + 7066    // nessus
 ];
+
+
+
+var elementMap = {
+  '双鱼': 'water',
+  '水瓶': 'air',
+  '摩羯': 'earth',
+  '射手': 'fire',
+  '天蝎': 'water',
+  '天秤': 'air',
+  '处女': 'earth',
+  '狮子': 'fire',
+  '巨蟹': 'water',
+  '双子': 'air',
+  '金牛': 'earth',
+  '白羊': 'fire'
+};
+var eleValiPlanets = {
+  'sun': true,
+  'moon': true,
+  'mercury': true,
+  'venus': true,
+  'mars': true,
+  'jupiter': true,
+  'saturn': true,
+  'uranus': true,
+  'neptune': true,
+  'pluto': true,
+  'asc': true,
+  'mc': true
+};
+var toDegree = function(s) {
+  if (s === undefined || s === null) {
+    return '';
+  }
+  var pre = '';
+  if (s < 0.0) {
+    s = -s;
+    pre = '-';
+  }
+  var d = Math.floor(s);
+  s -= d;
+  s *= 60;
+  var m = Math.floor(s);
+  s -= m;
+  s *= 60;
+  return pre + d + '°' + m + '\'' + Math.floor(s);
+};
+
 
 
 var queryAdtroData = function(date, timeZone, geoLon, geoLat, splitHouses) {
@@ -208,35 +237,6 @@ var planetsCount = function(houses, planets) {
 };
 
 
-
-var elementMap = {
-  '双鱼': 'water',
-  '水瓶': 'air',
-  '摩羯': 'earth',
-  '射手': 'fire',
-  '天蝎': 'water',
-  '天秤': 'air',
-  '处女': 'earth',
-  '狮子': 'fire',
-  '巨蟹': 'water',
-  '双子': 'air',
-  '金牛': 'earth',
-  '白羊': 'fire'
-};
-var eleValiPlanets = {
-  'sun': true,
-  'moon': true,
-  'mercury': true,
-  'venus': true,
-  'mars': true,
-  'jupiter': true,
-  'saturn': true,
-  'uranus': true,
-  'neptune': true,
-  'pluto': true,
-  'asc': true,
-  'mc': true
-};
 /*
 four element, from planets in signs
  */
@@ -268,14 +268,17 @@ var aspectCount = function(planetsData, planetsDataB) {
     return p.speed < 0;
   };
   var samePair = {};
-
-  planetsDataB = planetsDataB || planetsData;
+  var isCompair = true;
+  if (!planetsDataB) {
+    planetsDataB = planetsData;
+    isCompair = false;
+  }
 
   for (var aName in planetsData) {
     var p1 = planetsData[aName];
     for (var bName in planetsDataB) {
-      var p2 = planetsData[bName];
-      if (p1.name === p2.name) {
+      var p2 = planetsDataB[bName];
+      if (p1.name === p2.name && !isCompair) {
         continue;
       }
       if (samePair[p1.name + '#' + p2.name]) {
@@ -284,27 +287,27 @@ var aspectCount = function(planetsData, planetsDataB) {
       }
       samePair[p2.name + '#' + p1.name] = true;
       var aspectTypes = [
-        { name: 'conjunct', major: true, angle: 0, orb: 7, symbol: '<' },
-        { name: 'semisextile', major: false, angle: 30, orb: 1, symbol: 'y' },
+        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },
+        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },
         // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },
         //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
-        { name: 'semisquare', major: false, angle: 45, orb: 2, symbol: '=' },
+        { name: 'semisquare', major: false, angle: 45, orb: 3, symbol: '=' },
         //// {name:'septile', major: false, angle: 51.417, orb: 2, symbol: 'V' },
-        { name: 'sextile', major: true, angle: 60, orb: 5, symbol: 'x' },
+        { name: 'sextile', major: true, angle: 60, orb: 6, symbol: 'x' },
         // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' },
         //// {name:'bilin', major: false, angle: 75, orb: 0.9, symbol: '-' },
         //// {name:'binovile', major: false, angle: 80, orb: 2, symbol: ';' },
-        { name: 'square', major: true, angle: 90, orb: 6, symbol: 'c' },
+        { name: 'square', major: true, angle: 90, orb: 7, symbol: 'c' },
         //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
         //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
-        { name: 'trine', major: true, angle: 120, orb: 6, symbol: 'Q' },
+        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' },
         // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },
         // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },
         // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' },
         //// {name:'treseptile', major: false, angle: 154.284, orb: 1.1, symbol: 'B' },
         //// {name:'tetranovile', major: false, angle: 160, orb: 3, symbol: ':' },
         //// {name:'tao', major: false, angle: 165, orb: 1.5, symbol: '—' },
-        { name: 'opposition', major: true, angle: 180, orb: 6, symbol: 'm' }
+        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' }
       ];
       var l1 = p1.lon,
         l2 = p2.lon,
@@ -359,6 +362,7 @@ var aspectCount = function(planetsData, planetsDataB) {
   // console.log('aspect result:------->', result.length);
   return result;
 };
+
 
 
 var countAstroData = function(astroDatas) {

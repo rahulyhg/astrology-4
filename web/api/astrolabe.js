@@ -287,27 +287,27 @@ var aspectCount = function(planetsData, planetsDataB) {
       }
       samePair[p2.name + '#' + p1.name] = true;
       var aspectTypes = [
-        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },
-        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },
-        // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },
+        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },// ----------- 合
+        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },// ----------- 十二分
+        // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },// ----------- 十分
         //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
-        { name: 'semisquare', major: false, angle: 45, orb: 3, symbol: '=' },
+        { name: 'semisquare', major: false, angle: 45, orb: 3, symbol: '=' }, //----------- 八分
         //// {name:'septile', major: false, angle: 51.417, orb: 2, symbol: 'V' },
-        { name: 'sextile', major: true, angle: 60, orb: 6, symbol: 'x' },
-        // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' },
+        { name: 'sextile', major: true, angle: 60, orb: 6, symbol: 'x' }, //----------- 六合
+        // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' }, // ------------ 五分
         //// {name:'bilin', major: false, angle: 75, orb: 0.9, symbol: '-' },
         //// {name:'binovile', major: false, angle: 80, orb: 2, symbol: ';' },
-        { name: 'square', major: true, angle: 90, orb: 7, symbol: 'c' },
+        { name: 'square', major: true, angle: 90, orb: 7, symbol: 'c' },   //----------- 刑
         //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
         //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
-        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' },
-        // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },
-        // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },
-        // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' },
+        { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' }, //----------- 拱
+        // { name: 'sesquare', major: false, angle: 135, orb: 2, symbol: 'b' },// ------------ 补八分
+        // { name: 'biquintile', major: false, angle: 144, orb: 2, symbol: 'C' },// ----------- 倍五分
+        // { name: 'inconjunct', major: false, angle: 150, orb: 2, symbol: 'n' }, // ---------- 梅花形
         //// {name:'treseptile', major: false, angle: 154.284, orb: 1.1, symbol: 'B' },
         //// {name:'tetranovile', major: false, angle: 160, orb: 3, symbol: ':' },
         //// {name:'tao', major: false, angle: 165, orb: 1.5, symbol: '—' },
-        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' }
+        { name: 'opposition', major: true, angle: 180, orb: 7, symbol: 'm' } //----------- 冲
       ];
       var l1 = p1.lon,
         l2 = p2.lon,
@@ -345,12 +345,12 @@ var aspectCount = function(planetsData, planetsDataB) {
           var next = aspectTypes[i + 1];
           if (pre.angle + pre.orb > cur.angle) {
             //match pre
-            result.push([pre.name, p1.name, p2.name, cur.angle - pre.angle, applying]);
+            result.push([pre.name, p1.name, p2.name, applying, toDegree(cur.angle - pre.angle)]);
             break;
           }
           if (next.angle - next.orb < cur.angle) {
             //match next
-            result.push([next.name, p1.name, p2.name, next.angle - cur.angle, applying]);
+            result.push([next.name, p1.name, p2.name, applying, toDegree(next.angle - cur.angle)]);
             break;
           }
           // console.log('--- not match:%j',[p1.name,p2.name]);
@@ -371,6 +371,22 @@ var countAstroData = function(astroDatas) {
   astroDatas.elements = elementCount(countedPlanets);
   astroDatas.aspects = aspectCount(astroDatas.planets);
   return astroDatas;
+};
+
+
+var compairsion = function(astroDataA, astroDataB) {
+  var housesInA = {};
+  for (var j in astroDataB.planets) {
+    var lon = astroDataB.planets[j].lon;
+    var housePo = checkOnePlanetLocation(lon, astroDataA.houses);
+    // console.log('%j, housePo:%j,lon:%j',j,housePo,lon);
+    housesInA[j] = {
+      inHouseA: housePo + 1,
+      inHousesADegree: toDegree(lon - astroDataA.houses[housePo])
+    };
+  }
+  var aspectsInA = aspectCount(astroDataB.planets, astroDataA.planets);
+  return { 'housesInA': housesInA, 'aspectsInA': aspectsInA };
 };
 
 /**
@@ -471,6 +487,7 @@ exports.countAstroData = countAstroData;
 exports.checkOnePlanetLocation = checkOnePlanetLocation;
 exports.aspectCount = aspectCount;
 exports.toDegree = toDegree;
+exports.compairsion = compairsion;
 
 
 // var date = { year: 1981, month: 2, day: 6, hour: 1, minute: 0, second: 0 };

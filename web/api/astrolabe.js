@@ -3,6 +3,7 @@ astrolabe的api
  */
 'use strict';
 var kc = require('kc');
+var cck = require('cck');
 var iApi = kc.iApi;
 var error = require('./../error');
 var vlog = require('vlog').instance(__filename);
@@ -287,8 +288,8 @@ var aspectCount = function(planetsData, planetsDataB) {
       }
       samePair[p2.name + '#' + p1.name] = true;
       var aspectTypes = [
-        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' },// ----------- 合
-        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' },// ----------- 十二分
+        { name: 'conjunct', major: true, angle: 0, orb: 8, symbol: '<' }, // ----------- 合
+        { name: 'semisextile', major: false, angle: 30, orb: 2, symbol: 'y' }, // ----------- 十二分
         // { name: 'decile', major: false, angle: 36, orb: 1.5, symbol: '>' },// ----------- 十分
         //// {name:'novile', major: false, angle: 40, orb: 1.9, symbol: 'M' },
         { name: 'semisquare', major: false, angle: 45, orb: 3, symbol: '=' }, //----------- 八分
@@ -297,7 +298,7 @@ var aspectCount = function(planetsData, planetsDataB) {
         // { name: 'quintile', major: false, angle: 72, orb: 2, symbol: 'Y' }, // ------------ 五分
         //// {name:'bilin', major: false, angle: 75, orb: 0.9, symbol: '-' },
         //// {name:'binovile', major: false, angle: 80, orb: 2, symbol: ';' },
-        { name: 'square', major: true, angle: 90, orb: 7, symbol: 'c' },   //----------- 刑
+        { name: 'square', major: true, angle: 90, orb: 7, symbol: 'c' }, //----------- 刑
         //// {name:'biseptile', major: false, angle: 102.851, orb: 2, symbol: 'N' },
         //// {name:'tredecile', major: false, angle: 108, orb: 2, symbol: 'X' },
         { name: 'trine', major: true, angle: 120, orb: 7, symbol: 'Q' }, //----------- 拱
@@ -345,12 +346,12 @@ var aspectCount = function(planetsData, planetsDataB) {
           var next = aspectTypes[i + 1];
           if (pre.angle + pre.orb > cur.angle) {
             //match pre
-            result.push([pre.name, p1.name, p2.name, applying, toDegree(cur.angle - pre.angle)]);
+            result.push([pre.name, p1.name, p2.name, applying, cur.angle - pre.angle, toDegree(cur.angle - pre.angle)]);
             break;
           }
           if (next.angle - next.orb < cur.angle) {
             //match next
-            result.push([next.name, p1.name, p2.name, applying, toDegree(next.angle - cur.angle)]);
+            result.push([next.name, p1.name, p2.name, applying, next.angle - cur.angle, toDegree(next.angle - cur.angle)]);
             break;
           }
           // console.log('--- not match:%j',[p1.name,p2.name]);
@@ -386,8 +387,60 @@ var compairsion = function(astroDataA, astroDataB) {
     };
   }
   var aspectsInA = aspectCount(astroDataB.planets, astroDataA.planets);
-  return { 'housesInA': housesInA, 'aspectsInA': aspectsInA };
+  astroDataA.housesInA = housesInA;
+  astroDataA.aspectsInA = aspectsInA;
+  astroDataA.astroDataB = astroDataB;
+  return astroDataA;
 };
+
+
+
+var checkNum = function(strInput, len, isInt, isPositive) {
+  if (!strInput) {
+    return false;
+  }
+  var isPositiveRe = (isPositive) ? '' : '[\\-]?';
+  var isIntRe = (isInt) ? '' : '[\\.]?[\\d]+';
+  var regStr = '^' + isPositiveRe + '[\\d]{' + len + ',}' + isIntRe + '$';
+  // console.log('regStr:%j', regStr);
+  return strInput.match(new RegExp(regStr, 'g'));
+};
+
+
+
+var checkFormJson = function(jsonData) {
+  if (!jsonData.isCompare) {
+    return 'isCompare';
+  }
+  var targetIntArr = ['birthYear', 'birtMonth', 'birthDate', 'birthHours', 'birthMinutes', 'birthSeconds', 'timeZone'];
+  var targetFloatArr = ['geoLon', 'geoLat'];
+  if (jsonData.isCompare === 'true') {
+    var addArr = [];
+    for (var i = 0; i < targetIntArr.length; i++) {
+      addArr.push(targetIntArr[i] + 'B');
+    }
+    targetIntArr = targetIntArr.concat(addArr);
+    targetFloatArr = targetFloatArr.concat(['geoLonB', 'geoLatB']);
+  } else {
+    jsonData.isCompare = 'false';
+  }
+
+  for (var k = 0; k < targetIntArr.length; k++) {
+    if (!jsonData[targetIntArr[k]] || !checkNum(jsonData[targetIntArr[k]], 1, true, true)) {
+      // console.log('e3'+k,targetIntArr[k]);
+      return targetIntArr[k];
+    }
+  }
+
+  for (var l = 0; l < targetFloatArr.length; l++) {
+    if (!jsonData[targetFloatArr[l]] || !checkNum(jsonData[targetFloatArr[l]], 1, false, false)) {
+      // console.log('e4'+l,targetFloatArr[l]);
+      return targetFloatArr[l];
+    }
+  }
+  return 'ok';
+};
+
 
 /**
  * query astrolabe json data
@@ -409,33 +462,53 @@ var query = function(req, resp, callback) {
     return callback(vlog.ee(new Error('iApi req'), 'kc iApi req error', reqDataArr), null, 200, reqDataArr[0]);
   }
   var reqData = reqDataArr[1];
-  var timeZone = parseInt(reqData.timeZone) || 8;
+  // console.log('reqData:%j', reqData);
+
+  var checkParas = checkFormJson(reqData);
+  if ('ok' !== checkParas) {
+    return callback(vlog.ee(new Error('reqData error'), 'checkFormJson', reqDataArr), null, 200, '403101', checkParas);
+  }
+
+  var timeZone = (cck.isNotNull(reqData.timeZone)) ? parseInt(reqData.timeZone) : 8;
   var splitHouses = reqData.splitHouses || 'P';
   var geoLon = parseFloat(reqData.geoLon);
   var geoLat = parseFloat(reqData.geoLat);
   var date = { year: parseInt(reqData.birthYear), month: parseInt(reqData.birtMonth), day: parseInt(reqData.birthDate), hour: parseInt(reqData.birthHours), minute: parseInt(reqData.birthMinutes), second: parseInt(reqData.birthSeconds) };
   // console.log(date, timeZone, geoLon, geoLat, splitHouses);
-  var outAll = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
 
-  // var countedPlanets = planetsCount(outAll.houses, outAll.planets);
-  // outAll.planets = countedPlanets;
-  // outAll.elements = elementCount(countedPlanets);
-  // outAll.aspects = aspectCount(outAll.planets);
+  var isCompare = (reqData.isCompare === 'true');
 
-  outAll = countAstroData(outAll);
+  var outAll = null;
+
+  if (!isCompare) {
+
+    outAll = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
+
+    // var countedPlanets = planetsCount(outAll.houses, outAll.planets);
+    // outAll.planets = countedPlanets;
+    // outAll.elements = elementCount(countedPlanets);
+    // outAll.aspects = aspectCount(outAll.planets);
+
+    outAll = countAstroData(outAll);
+  } else {
+
+    var astroDataA = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
+    timeZone = (cck.isNotNull(reqData.timeZoneB)) ? parseInt(reqData.timeZoneB) : 8;
+    geoLon = parseFloat(reqData.geoLonB);
+    geoLat = parseFloat(reqData.geoLatB);
+    date = { year: parseInt(reqData.birthYearB), month: parseInt(reqData.birtMonthB), day: parseInt(reqData.birthDateB), hour: parseInt(reqData.birthHoursB), minute: parseInt(reqData.birthMinutesB), second: parseInt(reqData.birthSecondsB) };
+
+    var astroDataB = queryAdtroData(date, timeZone, geoLon, geoLat, splitHouses);
+    outAll = compairsion(astroDataA, astroDataB);
+  }
+
+
   // console.log(outAll);
-  /*
-   * iApi.makeApiResp:创建resp的内容
-   * @param  {int} errorCode      0为成功,其他为错误码
-   * @param  {object} data   返回的数据,格式不限
-   * @param  {string} apiKey 用于校验请求合法性的key
-   * @return {json} 需要返回的json
-   */
+
   var respObj = iApi.makeApiResp(0, outAll, apiKey);
   //返回
   callback(null, respObj);
 };
-
 
 
 var iiConfig = {
@@ -446,17 +519,8 @@ var iiConfig = {
     //另一个接口,地址如:http://localhost:16000/astrolabe/query
     'query': {
       'validator': {
-        '@userName': 'string',
-        'birthYear': 'strInt',
-        'birtMonth': 'strInt',
-        'birthDate': 'strInt',
-        'birthHours': 'strInt',
-        'birthMinutes': 'strInt',
-        'birthSeconds': 'strInt',
-        'geoLon': 'string',
-        'geoLat': 'string',
-        '@splitHouses': ['strLen', [0, 1]],
-        '@timeZone': ['strIntRange', [0, 30]]
+        'isCompare': 'string'
+          //其他的校验走checkFormJson
       },
       'resp': query
     }

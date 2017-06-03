@@ -150,7 +150,7 @@ var adjustCircleHitObj = function(obj1, obj2, centerX, centerY) {
   return true;
 };
 
-function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr) {
+function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr, planetsDataB) {
   draw.clear();
   var maxSize = 500;
   var circleDiameter = 480;
@@ -205,7 +205,7 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     return groupEcliptic;
   };
 
-  var drawHouse = function() {
+  var drawHouse = function(planetsDataB) {
     var groupHouse = draw.group();
     //house
     var circle3 = draw.circle(circleDiameter - 120).fill('#FFF').center(centerX, centerY).stroke(strokeStyleInner2);
@@ -221,7 +221,13 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     var circleCenter = lineHouseGroup.clone().maskWith(circle3.clone().fill('#222').attr({
       stroke: null
     }));
-    groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circleCenter); //.add(lineStarGroup);
+    if (planetsDataB) {
+      var circle5 = circle3.clone().size(circleDiameter - 280).center(centerX, centerY);
+      groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circle5).add(circleCenter);
+    } else {
+
+      groupHouse.add(lineHouseGroup).add(circle3).add(circle4).add(circleCenter); //.add(lineStarGroup);
+    }
 
     return groupHouse;
   };
@@ -287,12 +293,23 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     return txtHouseGroup;
   };
 
-  var planetDotMap = {};
-  var drawDotPlanets = function(centerX, centerY) {
+  var drawDotPlanets = function(planetsData, centerX, centerY, shift, isOnlyDot) {
+    var planetDotMap = {};
     var groupPlanets = draw.group();
+    shift = shift || 0;
     // planets dots circle
-    var pDotArr = planetsCircle(draw, centerX, centerY, showPlanets, planetsData, centerX - 100, asc);
+    var pDotArr = planetsCircle(draw, centerX, centerY, showPlanets, planetsData, centerX - 100 + shift, asc);
     // planets txts circle //draw, dotCircleName, centerX, centerY, txts, fontStyle, radius, ascAngle
+    for (var m = 0; m < pDotArr.length; m++) {
+      planetDotMap[showPlanets[m]] = pDotArr[m];
+    }
+
+    if (isOnlyDot) {
+      for (var k = 0; k < pDotArr.length; k++) {
+        groupPlanets.add(pDotArr[k]);
+      }
+      return [groupPlanets, planetDotMap];
+    }
     var fontStyle = {
       'size': 20,
       'font-family': 'astro',
@@ -304,7 +321,7 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
       txts.push([txts1[n], planetsData[showPlanets[n]].lon]);
     }
     // txts.push(['f', asc]); //add ASC dot
-    var pTxtArr = txtCircle(draw, 'txtPlanet', centerX, centerY, txts, fontStyle, centerX - 80, asc);
+    var pTxtArr = txtCircle(draw, 'txtPlanet', centerX, centerY, txts, fontStyle, centerX - 80 + shift, asc);
     // 按circle角度排序
     var sortFn = function(dataName, obj1, obj2) {
       var anglePT1 = obj1.data(dataName).lon;
@@ -319,9 +336,6 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     };
 
 
-    for (var m = 0; m < pDotArr.length; m++) {
-      planetDotMap[showPlanets[m]] = pDotArr[m];
-    }
     // planetDotMap['asc'] = pDotArr[pDotArr.length - 1];
 
     pTxtArr.sort(sortFn1);
@@ -355,10 +369,10 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     for (var k = 0; k < pDotArr.length; k++) {
       groupPlanets.add(linkerArr[k]).add(pDotArr[k]).add(pTxtArr[k]);
     }
-    return groupPlanets;
+    return [groupPlanets, planetDotMap];
   };
 
-  var aspectCreate = function(planetDotMap) {
+  var aspectCreate = function(planetDotMap, planetDotMapB) {
     // var aspectArr = aspectCount(planetsData);
     var aspectGroup = draw.group();
     var lineStyleArr = [
@@ -367,8 +381,8 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
     for (var i = 0; i < aspectArr.length; i++) {
       var aptArr = aspectArr[i];
       var dot1 = planetDotMap[aptArr[1]];
-      var dot2 = planetDotMap[aptArr[2]];
-      var orb = aptArr[3];
+      var dot2 = (planetDotMapB) ? planetDotMapB[aptArr[2]] : planetDotMap[aptArr[2]];
+      var orb = aptArr[4];
       var lineSytle = lineStyleArr[0];
       if (orb > 1 && orb < 2) {
         lineSytle = lineStyleArr[1];
@@ -387,12 +401,26 @@ function astroShow(draw, showPlanets, planetsData, houseArr, asc, mc, aspectArr)
 
 
   var groupEcliptic = drawEcliptic().rotate(asc);
-  var groupHouse = drawHouse().rotate(asc);
+  var groupHouse = drawHouse(planetsDataB).rotate(asc);
   var txtEcliptics = txtEclipticCircle(draw, centerX, centerY, centerX - 20, asc - 15);
   var txtHouseArr = txtHouseCircle(draw, centerX, centerY, centerX - 50, asc);
-  var dotPlanets = drawDotPlanets(centerX, centerY);
-  var aspectGroup = aspectCreate(planetDotMap);
-  groupAll.add(groupEcliptic).add(groupHouse).add(txtEcliptics).add(txtHouseArr).add(aspectGroup).add(dotPlanets);
+  // var aspectGroup = aspectCreate(planetDotMap);
+  // groupAll.add(groupEcliptic).add(groupHouse).add(txtEcliptics).add(txtHouseArr).add(dotPlanets);
+  groupAll.add(groupEcliptic).add(groupHouse).add(txtEcliptics).add(txtHouseArr);
+  var aspectGroup;
+  var dotPlanetsArr;
+  if (planetsDataB) {
+    dotPlanetsArr = drawDotPlanets(planetsData, centerX, centerY, -40);
+    var dotPlanetsBArr = drawDotPlanets(planetsDataB, centerX, centerY);
+    var dotPlanetsBCopy = drawDotPlanets(planetsDataB, centerX, centerY, -40, true);
+    groupAll.add(dotPlanetsBArr[0]).add(dotPlanetsBCopy[0]);
+
+    aspectGroup = aspectCreate(dotPlanetsArr[1], dotPlanetsBCopy[1]);
+  } else {
+    dotPlanetsArr = drawDotPlanets(planetsData, centerX, centerY);
+    aspectGroup = aspectCreate(dotPlanetsArr[1]);
+  }
+  groupAll.add(aspectGroup).add(dotPlanetsArr[0]);
 
 
   // ASC and MC
@@ -480,12 +508,72 @@ var drawAstroTxt = function(draw) {
 };
 
 
+var checkNum = function(strInput, len, isInt, isPositive) {
+  if (!strInput) {
+    return false;
+  }
+  var isPositiveRe = (isPositive) ? '' : '[\\-]?';
+  var isIntRe = (isInt) ? '' : '[\\.]?[\\d]+';
+  var regStr = '^' + isPositiveRe + '[\\d]{' + len + ',}' + isIntRe + '$';
+  // console.log('regStr:%j', regStr);
+  return strInput.match(new RegExp(regStr, 'g'));
+};
+
+
+
+var checkFormJson = function(jsonData) {
+  var targetStrArr = ['userName'];
+  var targetIntArr = ['birthYear', 'birtMonth', 'birthDate', 'birthHours', 'birthMinutes', 'birthSeconds', 'timeZone'];
+  var targetFloatArr = ['geoLon', 'geoLat'];
+  if (!jsonData.isCompare) {
+    console.log('e1');
+    return false;
+  }
+  if (jsonData.isCompare === 'true') {
+    var addArr = [];
+    for (var i = 0; i < targetIntArr.length; i++) {
+      addArr.push(targetIntArr[i] + 'B');
+    }
+    targetIntArr = targetIntArr.concat(addArr);
+    targetFloatArr = targetFloatArr.concat(['geoLonB', 'geoLatB']);
+    targetStrArr.push('userNameB');
+  } else {
+    jsonData.isCompare = 'false';
+  }
+
+
+  for (var j = 0; j < targetStrArr.length; j++) {
+    if (!jsonData[targetStrArr[j]] || jsonData[targetStrArr[j]].length < 1) {
+      console.log('e2' + j, targetStrArr[j]);
+      return false;
+    }
+  }
+
+  for (var k = 0; k < targetIntArr.length; k++) {
+    if (!jsonData[targetIntArr[k]] || !checkNum(jsonData[targetIntArr[k]], 1, true, true)) {
+      console.log('e3' + k, targetIntArr[k]);
+      return false;
+    }
+  }
+
+  for (var l = 0; l < targetFloatArr.length; l++) {
+    if (!jsonData[targetFloatArr[l]] || !checkNum(jsonData[targetFloatArr[l]], 1, false, false)) {
+      console.log('e4' + l, targetFloatArr[l]);
+      return false;
+    }
+  }
+  return true;
+};
+
 
 $(function() {
+
+  $('#profileB').hide();
 
   var drawTxt = SVG('astroTxt');
 
   drawAstroTxt(drawTxt);
+
 
 
   $('#f_labeForm').submit(function() {
@@ -493,15 +581,13 @@ $(function() {
       alert('SVG 不支持!请使用较新的浏览器,推荐谷歌浏览器.');
       return false;
     }
-    var userName = $('#userNameInput').val();
-    var geoLon = $('#geoLonInput').val();
-    var geoLat = $('#geoLatInput').val();
-    var timeZone = $('#timeZoneInput').val();
-    if (!checkStrLen(userName, 1, 18) || !checkStrLen(geoLon, 1, 18) || !checkStrLen(geoLat, 1, 18)) {
-      alert('信息输入不完整');
+
+    var data = formToJson('#f_labeForm', true);
+    if (!checkFormJson(data)) {
+      alert('参数错误!');
       return false;
     }
-    var data = formToJson('#f_labeForm', true);
+
     var reqData = makeApiReq('astrolabe', data, 'testKey');
     jsonReq('astrolabe/query', reqData, function(err, re) {
       if (err) {
@@ -511,7 +597,11 @@ $(function() {
       if (re.re === 0) {
         $('#astrolabe').html('');
         var draw = SVG('astrolabe');
-        astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc, re.data.aspects);
+        if (re.data.aspects) {
+          astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc, re.data.aspects);
+        } else {
+          astroShow(draw, planetNames, re.data.planets, re.data.houses, re.data.asc, re.data.mc, re.data.aspectsInA, re.data.astroDataB.planets);
+        }
         // var nData = planetsLocations(re.data.asc, re.data.houses, re.data.planets);
         // console.log(nData);
         return false;
@@ -522,4 +612,22 @@ $(function() {
     });
     return false;
   });
+
+
+  var profileState = false;
+  $('#addProfile').click(function() {
+    var text = null;
+    if (profileState) {
+      profileState = false;
+      text = '打开对比盘';
+    } else {
+      profileState = true;
+      text = '关闭对比盘';
+    }
+    $('#profileB').toggle(100, function() {
+      $('#isCompare').val(profileState);
+      $('#addProfile').text(text);
+    });
+  });
+
 });

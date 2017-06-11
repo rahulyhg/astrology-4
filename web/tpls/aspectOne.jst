@@ -1,0 +1,63 @@
+{{#def.parts}}
+{{#def.header:{title:it.jst.tbName+"-"+it.curd.planetA+"-"+it.curd.planetB,rootPath:'../../'} }}
+{{#def.top:{userName:it.user.name || it.cpid,rootPath:'../../'} }}
+{{#def.aside:{level:it.level,rootPath:'../../'} }}
+  <!-- content -->
+  <div id="content" class="app-content" role="main">
+    <div class="app-content-body ">
+
+
+<div class="bg-light lter b-b wrapper-md">
+  <h1 class="m-n font-thin h3">{{=it.jst.tbName}}管理</h1>
+</div>
+<div class="wrapper-md">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      {{=it.jst.tbName}}: {{=it.curd.planetA}}/{{=it.curd.planetB}}
+    </div>
+    <div class="panel-body">
+      <form method="post" class="form-horizontal" id="curdOneForm">
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">行星A:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.planetA}}</p></div>
+        </div>
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">行星A en:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.planetAEn}}</p></div>
+        </div>
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">行星B:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.planetB}}</p></div>
+        </div>
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">行星B en:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.planetBEn}}</p></div>
+        </div>
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">角度:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.angle}}</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="" class="col-sm-2 control-label">说明:</label>
+          <div class="col-sm-10"><p class="form-control-static">{{=it.curd.aspectTxt1}}</p></div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <a href="../update/{{=it.curd._id}}" class="btn btn-sm btn-primary">修改</a>
+            <a href="../../{{=it.jst.tb}}" class="btn btn-sm btn-info">返回列表</a>
+            <a href="javascript:history.back();" class="btn btn-sm btn-info">返回</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+</div>
+  <!-- / content -->
+  {{#def.alert:{title:'处理成功',txt:it.jst.tbName+'信息处理成功。'} }}
+{{#def.footer:{rootPath:'../../','scripts':'<script src="../../js/tableCurd.src.js"></script>'} }}

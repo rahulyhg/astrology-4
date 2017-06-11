@@ -459,14 +459,14 @@ var query = function(req, resp, callback) {
   var reqDataArr = iApi.parseApiReq(req.body, apiKey);
   if (reqDataArr[0] !== 0) {
     //如果报错时,可定义状态码和返回错误码,如下403表示http返回403状态码,iiReq会返回错误error.json['iiReq']的内容
-    return callback(vlog.ee(new Error('iApi req'), 'kc iApi req error', reqDataArr), null, 200, reqDataArr[0]);
+    return callback(vlog.ee(new Error('iApi req'), 'kc iApi req error', reqDataArr), 'reqPara', 200, reqDataArr[0]);
   }
   var reqData = reqDataArr[1];
   // console.log('reqData:%j', reqData);
 
   var checkParas = checkFormJson(reqData);
   if ('ok' !== checkParas) {
-    return callback(vlog.ee(new Error('reqData error'), 'checkFormJson', reqDataArr), null, 200, '403101', checkParas);
+    return callback(vlog.ee(new Error('reqData error'), 'checkFormJson', reqDataArr), checkParas, 200, '403101');
   }
 
   var timeZone = (cck.isNotNull(reqData.timeZone)) ? parseInt(reqData.timeZone) : 8;

@@ -1,0 +1,33 @@
+{{
+  var jst = {
+    tb: 'aspect',
+    tbName: '相位',
+
+    addForm: (it.rootPath) ? false : true,
+
+    haveOne:true,
+    'rootPath':(it.rootPath) ? it.rootPath +'aspect' : './aspect'
+  };
+}}
+
+{{##def.listTh:
+  <th>行星A</th> <th>行星B</th> <th>A</th> <th>B</th> <th>角度</th> <th>说明</th>
+#}}
+
+{{##def.listColumns:
+  [{ data: 'planetA' }, { data: 'planetB' } , { data: 'planetAEn'}, { data: 'planetBEn' },  { data: 'angle' }, { data: 'aspectTxt1' }]
+#}}
+
+{{##def.addForm:
+  <label for="">行星A</label><input name="planetA" type="text" pattern=".{2,}"  class="form-control" placeholder="行星A" required="required" /><label for="">行星B</label><input name="planetB" type="text" pattern=".{2,}"  class="form-control" placeholder="行星B" required="required" /><label for="">行星A en</label><input name="planetAEn" type="text" pattern=".{2,}"  class="form-control" placeholder="行星A en" required="required" /><label for="">行星B en</label><input name="planetBEn" type="text" pattern=".{2,}"  class="form-control" placeholder="行星B en" required="required" /><div class="form-group"><label for="">角度:</label> <select name="angle"> <option value="0">0度</option>  <option value="30">30度</option> <option value="45">45度</option> <option value="60">60度</option><option value="90">90度</option><option value="120">120度</option><option value="180">180度</option></select> <div class="form-group"><label for="">说明</label><textarea name="aspectTxt1" class="form-control" placeholder="" required="required"></textarea></div>
+#}}
+
+{{#def.parts}}
+{{#def.header:{title:jst.tbName+"管理",'rootPath':(it.rootPath ? it.rootPath+'../' : '')} }}
+{{#def.top:{userName:it.user.name || it.userId,rootPath:it.rootPath || ''} }}
+{{#def.aside:{level:it.level,rootPath:it.rootPath || ''} }}
+{{#def.curd:jst }}
+{{ if (it.rootPath){ }}
+<input id="bowerPath" type="hidden" value="../../bower_components" />
+{{ } }}
+{{#def.footer:{'scripts':'<script src="'+(it.rootPath || '')+'js/tableCurd.src.js"></script>','rootPath':(it.rootPath ? it.rootPath+'../' : '')} }}

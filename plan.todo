@@ -9,6 +9,71 @@
 [neptune,海王星,U],
 [pluto,冥王星,V]
 
+
+planet:
+  name
+  nameCN
+  infoCN
+  tagsCN
+  rulership
+  myth
+  hero
+  psychological //心理
+  metal //金属
+  target //目标
+  people //代表的人
+  tags
+  bodyParts
+  opposition
+  positive
+  negative
+  disease
+  exaltation
+  detriment
+  full
+  planetInSign //行星落入的星座特性
+  planetInHouse //行星落入宫位特性
+
+signs:
+  name
+  nameCN
+  letter //用于表示的字母
+  symbol //符号
+  myth //神话
+  hero //神话人物
+  element //四元素
+  mode //三模式:创始，固定，变动
+  bodyParts  //身体部位
+  ruler  //守护星
+  color
+  tags
+  txt1
+  disease
+  planetInSign //行星在此星座
+  houseTopInSign //宫头在此星座
+
+houses:
+  name
+  nameCN
+inSign:
+  planetName
+  signName
+  txt1
+  plus
+inHouse:
+  planetName
+  houseNum
+  txt1
+aspects:
+  planetA
+  planetB
+  angle
+  aspectType
+  txt1
+
+
+
+
 1.Aquarius(the Water Carrier)水瓶座
 2.Pisces(the Fishes)双鱼座
 3.Aries(the Ram)白羊座
@@ -48,7 +113,7 @@
   ✔ 输入地点产生经纬度 @done (17-04-30 22:41)
   ✔ 本命盘数据保存在服务端,图形的显示也是只传递各点的角度和位置 @done (17-05-01 12:12)
   ☐ 从地点自动选择时区 --可通过网站抓取补充数据库
-  ☐ 合盘的图像
+  ✔ 合盘的图像 @done (17-06-06 22:41)
   ✔ 数据核准 @done (17-05-10 23:04)
   ✔ 补充具体度数，是否逆行 @done (17-05-11 22:31)
   ✔ 补充庙旺落陷 @done (17-05-11 23:10)

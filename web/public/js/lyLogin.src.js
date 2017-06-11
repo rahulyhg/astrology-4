@@ -32,7 +32,7 @@ $(function() {
         return false;
       }
       if (re.re === '0') {
-        window.location = 'main';
+        window.location = 'aspect';
         return false;
       } else {
         alert('登录失败!');

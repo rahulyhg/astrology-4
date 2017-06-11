@@ -5,6 +5,7 @@
     "sessionKey": "fdiRsdf97y2443Oaus948vgKUan",
     "sessionExpire": 1800,
     "failLoginRedirect": "login",
+    "apiKey":"astro",
     "redis": {
       "init": false,
       "redisIP": "127.0.0.1",
@@ -21,6 +22,7 @@
     "sessionKey": "sessionTestKey01567",
     "sessionExpire": 1800,
     "failLoginRedirect": "login",
+    "apiKey":"astro",
     "redis": {
       "init": false,
       "redisIP": "10.1.1.12",

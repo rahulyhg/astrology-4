@@ -1,0 +1,68 @@
+{{#def.parts}} {{#def.header:{title:it.jst.tbName+"更新",rootPath:'../../'} }} {{#def.top:{userName:it.user.name,rootPath:'../../'} }} {{#def.aside:{level:it.level,rootPath:'../../'} }}
+<!-- content -->
+<div id="content" class="app-content" role="main">
+  <div class="app-content-body ">
+    <div class="bg-light lter b-b wrapper-md">
+      <h1 class="m-n font-thin h3">{{=it.jst.tbName}}管理</h1>
+    </div>
+    <div class="wrapper-md">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          {{=it.jst.tbName}}: {{=it.curd.planetA}}/{{=it.curd.planetB}}
+        </div>
+        <div class="panel-body">
+          <form method="post" class="form-horizontal" id="curdUpdateForm">
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">行星A:</label>
+              <div class="col-sm-10">
+                <input type="text" pattern=".{3,}" class="form-control" name="planetA" placeholder="{{=it.curd.planetA}}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">行星A en:</label>
+              <div class="col-sm-10">
+                <input type="text" pattern=".{3,}" class="form-control" name="planetAEn" placeholder="{{=it.curd.planetAEn}}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">行星B:</label>
+              <div class="col-sm-10">
+                <input type="text" pattern=".{3,}" class="form-control" name="planetB" placeholder="{{=it.curd.planetB}}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">行星B en:</label>
+              <div class="col-sm-10">
+                <input type="text" pattern=".{3,}" class="form-control" name="planetBEn" placeholder="{{=it.curd.planetBEn}}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">类型:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" name="angle" placeholder="{{=it.curd.angle}}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">说明:</label>
+              <div class="col-sm-10"><textarea name="aspectTxt1" class="form-control" placeholder="" required="required">{{=it.curd.aspectTxt1}}</textarea></div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <input type="hidden" name="rootPath" id="rootPath" value="{{=it.rootPath}}" />
+                <input type="hidden" name="c_id" id="c_id" value="{{=it.curd._id}}" />
+                <button class="btn btn-sm btn-primary" type="submit" id="curdUpdateSubmit">修改</button>
+                <button class="btn btn-sm btn-danger" type="button" id="curdDel">硬删除</button>
+                <a href="../../{{=it.jst.tb}}" class="btn btn-sm btn-info">返回列表</a>
+                <a href="javascript:history.back();" class="btn btn-sm btn-info">返回</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / content -->
+{{#def.alert:{title:'修改成功',txt:it.jst.tbName+'修改信息提交成功。'} }}
+{{#def.footer:{rootPath:'../../','scripts':'<script src="../../js/tableCurd.src.js"></script>'} }}
